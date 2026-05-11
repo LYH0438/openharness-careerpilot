@@ -119,3 +119,10 @@ Application tracking 只在用户明确要求时写入，避免默认修改状�
 准备 examples/output_jd_analysis.json。
 为 JD Analyzer 编写基础测试。
 
+
+### Day 2 额外检查
+- 执行 `uv run oh --dry-run -p "Use career-coach skill to explain the CareerPilot workflow."`
+- dry-run 结果：`level: ready`
+- Provider 配置正常：`provider: deepseek`，`api_format: openai`，`model: deepseek-v4-flash`
+- 当前 OpenHarness discovery 发现默认 Skills 数量为 10，尚未发现 `careerpilot/skills/` 下的 CareerPilot Skills。
+- 结论：这是预期结果。Day 2 只完成 Skill 草稿，Skill discovery 集成放到 Day 8。
