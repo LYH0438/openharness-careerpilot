@@ -1,0 +1,61 @@
+{
+  "role_summary": "Backend Engineer role focused on Python, FastAPI, TypeScript, PostgreSQL.",
+  "seniority_level": "mid",
+  "core_skills": [
+    "Python",
+    "FastAPI",
+    "TypeScript",
+    "PostgreSQL",
+    "Redis",
+    "Docker",
+    "CI/CD",
+    "REST API",
+    "Distributed Systems"
+  ],
+  "nice_to_have_skills": [
+    "Kubernetes",
+    "AWS",
+    "LLM",
+    "Agent"
+  ],
+  "responsibilities": [
+    "设计和维护后端服务",
+    "开发和维护 API",
+    "数据库设计与性能优化",
+    "构建可扩展系统",
+    "参与部署和 DevOps 流程",
+    "与跨职能团队协作"
+  ],
+  "keywords_for_resume": [
+    "Python",
+    "FastAPI",
+    "TypeScript",
+    "PostgreSQL",
+    "Redis",
+    "Docker",
+    "CI/CD",
+    "REST API",
+    "Distributed Systems",
+    "Kubernetes",
+    "AWS",
+    "LLM",
+    "Agent",
+    "设计和维护后端服务",
+    "开发和维护 API",
+    "数据库设计与性能优化",
+    "构建可扩展系统",
+    "参与部署和 DevOps 流程",
+    "与跨职能团队协作"
+  ],
+  "interview_focus": [
+    "API 设计与后端服务实现",
+    "数据库设计、索引和性能优化",
+    "部署、云服务和 DevOps 基础",
+    "系统设计与可扩展架构"
+  ],
+  "risk_notes": [
+    "岗位包含明显部署或基础设施要求，简历中需要补充上线、部署或 DevOps 经验。",
+    "岗位可能关注系统设计能力，需要准备高并发、缓存、数据库扩展等案例。",
+    "岗位涉及 AI Agent 或 LLM 应用，需要准备工具调用、上下文管理和输出稳定性相关讲法。"
+  ]
+}
