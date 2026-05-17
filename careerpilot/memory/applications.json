@@ -1,0 +1,16 @@
+[
+  {
+    "company": "Example AI",
+    "role": "AI Agent Engineer",
+    "jd_source": "examples/careerpilot/sample_jd_backend.md",
+    "status": "applied",
+    "match_score": 78,
+    "next_action": "prepare backend system design interview answers",
+    "created_at": "2026-05-17",
+    "updated_at": "2026-05-17",
+    "notes": [
+      "需要补充 MCP 和多 Agent 相关表述",
+      "已完成第一版简历投递"
+    ]
+  }
+]

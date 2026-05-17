@@ -532,75 +532,413 @@ JD -> JD Analysis -> Resume Matching
 
 ### 备注
 当前版本是 deterministic matcher，不依赖 LLM。后续可接入模型增强 rewrite quality，但保留 schema validation 和规则评分逻辑。
-## 2026-05-17 Day 5
+
+## 2026-05-17 Day 6：Application Tracker 与本地 Memory 实现
 
 ### 今日目标
-- 实现 Project Story Extractor。
-- 将项目 README / 项目说明转化为简历项目经历、面试故事和潜在面试问题。
-- 保证输出结构稳定，便于后续 demo、测试和 README 展示。
+
+Day 6 的目标是为 CareerPilot Agent 增加最小可用的状态管理能力，使智能体不只能够生成岗位分析、简历匹配和项目经历改写结果，还能够记录真实求职流程中的投递状态、下一步动作和备注信息。
+
+本日重点实现：
+
+- 使用本地 JSON 文件作为轻量级 memory。
+- 支持新增岗位申请记录。
+- 支持更新投递状态。
+- 支持查询待办事项。
+- 支持生成今日求职任务清单。
+- 增加基础异常处理和单元测试。
+
+该模块对应半月计划中的 Day 6：Application Tracker，用于补齐 CareerPilot 的求职闭环状态管理能力。:contentReference[oaicite:0]{index=0}
+
+---
 
 ### 完成内容
-- 新增 `careerpilot/tools/project_story_extractor.py`。
-- 使用 Pydantic 定义输入输出结构：
-  - `ProjectStoryInput`
-  - `ProjectStoryOutput`
-  - `InterviewStory`
-- 实现规则版项目经历提炼逻辑：
-  - 提取项目一句话总结 `one_liner`
-  - 识别技术栈 `tech_stack`
-  - 生成架构亮点 `architecture_highlights`
-  - 生成中文简历 bullet `resume_bullets_cn`
-  - 生成英文简历 bullet `resume_bullets_en`
-  - 生成面试故事 `interview_story`
-  - 生成可能面试问题 `possible_interview_questions`
-- 新增样例项目说明文件：
-  - `examples/sample_project_readme.md`
-- 新增输出样例文件：
-  - `examples/output_project_bullets.md`
-- 新增测试文件：
-  - `tests/test_project_story_extractor.py`
-- 验证 `project_story_extractor.py` 可以独立运行并输出结构化 JSON。
 
-### 验证结果
-执行命令：
+#### 1. 新增本地 Memory 文件
+
+新增目录和文件：
+
+```text
+careerpilot/memory/applications.json
+````
+
+该文件用于保存用户的投递记录，初始内容为：
+
+```json
+[]
+```
+
+它作为 CareerPilot 的最小持久化 memory，用于记录公司、岗位、状态、匹配分、下一步动作和备注。
+
+---
+
+#### 2. 实现 Application Tracker Tool
+
+新增文件：
+
+```text
+careerpilot/tools/application_tracker.py
+```
+
+实现了以下核心能力：
+
+* `load_applications`
+
+  * 读取本地 JSON memory。
+  * 如果文件不存在，自动创建空列表文件。
+  * 如果 JSON 格式错误，返回可读错误信息。
+
+* `save_applications`
+
+  * 将投递记录写回 JSON 文件。
+  * 使用 `ensure_ascii=False`，保证中文内容可读。
+
+* `add_application`
+
+  * 新增投递记录。
+  * 支持公司、岗位、JD 来源、状态、匹配分、下一步动作和备注。
+  * 使用 `company + role` 判断重复记录。
+
+* `update_application`
+
+  * 更新已有投递记录。
+  * 支持更新状态、匹配分、下一步动作、JD 来源和备注。
+  * 每次更新自动刷新 `updated_at`。
+
+* `list_applications`
+
+  * 查询全部投递记录。
+  * 支持按状态筛选。
+
+* `get_todos`
+
+  * 查询仍处于活跃状态、且存在下一步动作的记录。
+
+* `generate_today_tasks`
+
+  * 根据当前活跃投递记录生成今日求职任务清单。
+
+---
+
+#### 3. 定义投递状态枚举
+
+当前支持的状态包括：
+
+```text
+researching -> preparing -> applied -> interview -> offer -> rejected -> archived
+```
+
+其中活跃状态定义为：
+
+```text
+researching
+preparing
+applied
+interview
+```
+
+这些状态会被用于生成待办事项和今日任务清单。
+
+---
+
+#### 4. 增加 CLI 调用方式
+
+`application_tracker.py` 支持通过命令行直接调用，方便本地 demo 和后续端到端流程集成。
+
+新增记录示例：
 
 ```bash
-python careerpilot/tools/project_story_extractor.py
-运行成功，输出包含以下核心字段：
+python -m careerpilot.tools.application_tracker add \
+  --company "Example AI" \
+  --role "AI Agent Engineer" \
+  --jd-source "examples/careerpilot/sample_jd_backend.md" \
+  --status "preparing" \
+  --match-score 78 \
+  --next-action "rewrite project bullets" \
+  --note "需要补充 MCP 和多 Agent 相关表述"
+```
 
-one_liner
-tech_stack
-architecture_highlights
-resume_bullets_cn
-resume_bullets_en
-interview_story
-possible_interview_questions
+更新状态示例：
 
-其中中文 bullet、英文 bullet、面试故事和面试问题均正常生成，满足 Day 5 验收标准。
-技术决策
-当前版本优先使用规则化关键词识别和模板化生成，而不是直接依赖 LLM。
-原因：
-输出更稳定，方便单元测试。
-demo 时不依赖模型 API，降低运行失败风险。
-后续可以在规则版基础上接入 LLM 作为增强层。
-使用 Pydantic schema 固定输入输出字段，便于后续接入 OpenHarness workflow 和端到端 demo。
-遇到问题
-当前技术栈识别依赖关键词匹配，如果输入样例中没有显式写出 Python、Pydantic 等关键词，输出中可能不会出现这些技术。
-后续可以通过改进样例 README 或扩展关键词映射表，让识别结果更完整。
-面试讲法
+```bash
+python -m careerpilot.tools.application_tracker update \
+  --company "Example AI" \
+  --role "AI Agent Engineer" \
+  --status "applied" \
+  --next-action "prepare backend system design interview answers" \
+  --note "已完成第一版简历投递"
+```
 
-今天实现的是 CareerPilot 的 Project Story Extractor。它的作用是把项目 README 或项目说明转化成可以直接用于简历和面试表达的结构化内容。相比直接让模型自由生成，我先用 Pydantic 固定 schema，再用规则和模板生成稳定输出，这样可以保证结果可测试、可复现，也方便后续接入 OpenHarness 的工具调用和端到端求职流程。
-简历 bullet 草稿
+查询全部记录：
 
-中文：
+```bash
+python -m careerpilot.tools.application_tracker list
+```
 
-实现 Project Story Extractor 工具，基于 Pydantic schema 和规则化关键词识别，将项目 README 自动转化为中英文简历 bullet、架构亮点、STAR 面试故事和潜在面试问题，提升项目经历包装效率与输出稳定性。
+生成今日任务：
 
-英文：
+```bash
+python -m careerpilot.tools.application_tracker today
+```
 
-Implemented a Project Story Extractor with Pydantic schemas and deterministic keyword extraction, converting README-style project descriptions into bilingual resume bullets, architecture highlights, STAR-style interview stories, and likely interview questions.
-明日计划
-实现 Application Tracker。
-使用本地 JSON 文件保存投递记录。
-支持新增申请、更新状态、查询待办和生成今日求职任务清单。
+---
+
+### 测试内容
+
+新增测试文件：
+
+```text
+tests/careerpilot/test_application_tracker.py
+```
+
+覆盖了以下场景：
+
+1. 新增投递记录。
+2. 拒绝重复投递记录。
+3. 更新状态和备注。
+4. 按状态筛选记录。
+5. 查询 active 状态下的待办事项。
+6. 生成今日任务清单。
+7. 文件不存在时自动创建 memory 文件。
+8. JSON 格式错误时抛出可读错误。
+9. 非法状态会被拒绝。
+10. 非法匹配分会被拒绝。
+
+测试命令：
+
+```bash
+python -m pytest -q tests/careerpilot/test_application_tracker.py
+```
+
+测试结果：
+
+```text
+10 passed
+```
+
+同时运行 CareerPilot 当前测试：
+
+```bash
+python -m pytest -q tests/careerpilot
+```
+
+结果正常。
+
+---
+
+### 今日验收结果
+
+Day 6 的两个核心验收命令均已正常通过：
+
+```bash
+python -m pytest -q tests/careerpilot/test_application_tracker.py
+```
+
+```bash
+python -m careerpilot.tools.application_tracker today
+```
+
+说明 Application Tracker 已经具备基本可用能力：
+
+* 可以保存投递记录。
+* 可以读取投递记录。
+* 可以更新投递状态。
+* 可以生成今日任务。
+* 可以通过单元测试验证核心逻辑。
+
+---
+
+### 技术决策
+
+#### 1. 使用 JSON 文件而不是数据库
+
+半月版优先保证项目可运行、可解释、可演示，因此暂时不引入 SQLite、PostgreSQL 或 ORM。
+
+选择 JSON 的原因：
+
+* 实现成本低。
+* 文件内容可直接查看。
+* 方便 demo。
+* 适合本地个人智能体的最小 memory。
+* 后续可以平滑升级为 SQLite 或向量数据库。
+
+---
+
+#### 2. 使用 `company + role` 判断重复记录
+
+当前版本没有引入唯一 ID，因此用公司名和岗位名共同判断一条投递记录是否重复。
+
+优点：
+
+* 简单直接。
+* 符合当前 demo 场景。
+* 方便用户理解。
+
+后续如果支持同一公司多个岗位、多轮投递或历史归档，可以改为自动生成 application id。
+
+---
+
+#### 3. 限制 `match_score` 在 0 到 100 之间
+
+`match_score` 来自 Resume Matcher 的输出。为了避免后续报告或排序逻辑出现异常，Application Tracker 中也做了范围校验。
+
+当前规则：
+
+```text
+0 <= match_score <= 100
+```
+
+非法分数会直接抛出错误。
+
+---
+
+#### 4. 将 active 状态单独抽象出来
+
+为了生成今日任务，需要判断哪些投递记录仍然需要用户跟进。
+
+当前 active 状态包括：
+
+```text
+researching
+preparing
+applied
+interview
+```
+
+这些状态代表用户仍然需要执行下一步动作。
+
+非 active 状态包括：
+
+```text
+offer
+rejected
+archived
+```
+
+这些状态默认不进入今日任务清单。
+
+---
+
+### 遇到的问题与解决方式
+
+#### 问题 1：本地 memory 文件可能不存在
+
+如果用户第一次运行工具，`careerpilot/memory/applications.json` 可能还不存在。
+
+解决方式：
+
+* 在 `load_applications` 中检测文件是否存在。
+* 如果不存在，自动创建父目录。
+* 写入空 JSON 列表 `[]`。
+
+---
+
+#### 问题 2：JSON 文件可能被手动改坏
+
+由于 memory 文件是本地 JSON，用户可能手动编辑时破坏格式。
+
+解决方式：
+
+* 捕获 `json.JSONDecodeError`。
+* 抛出可读错误。
+* 提示可以将文件恢复为空列表 `[]`。
+
+---
+
+#### 问题 3：重复记录可能导致状态混乱
+
+如果同一家公司同一岗位被重复新增，后续更新时可能不知道应该更新哪一条。
+
+解决方式：
+
+* 新增时检查 `company + role`。
+* 如果已存在，则拒绝新增。
+* 后续可以扩展为支持 application id。
+
+---
+
+#### 问题 4：非法状态可能破坏流程
+
+如果状态随意填写，例如 `waiting`、`done`、`pending`，后续统计和待办生成会变得不稳定。
+
+解决方式：
+
+* 定义固定状态枚举。
+* 所有新增和更新操作都必须经过状态校验。
+
+---
+
+### 今日产出文件
+
+新增或修改的文件包括：
+
+```text
+careerpilot/tools/application_tracker.py
+careerpilot/memory/applications.json
+tests/careerpilot/test_application_tracker.py
+docs/dev_log.md
+```
+
+---
+
+### 当前项目进度
+
+截至 Day 6，CareerPilot 已经完成以下核心模块：
+
+* Day 2：CareerPilot Skills 草稿。
+* Day 3：JD Analyzer Tool。
+* Day 4：Resume Matcher Tool。
+* Day 5：Project Story Extractor。
+* Day 6：Application Tracker 与本地 Memory。
+
+目前项目已经具备从岗位分析、简历匹配、项目经历提炼到投递状态记录的基础模块。
+
+下一步需要在 Day 7 将这些工具串联起来，形成端到端 demo flow。
+
+---
+
+### 面试可讲点
+
+今天完成的 Application Tracker 可以作为项目中的 memory 模块来讲。
+
+可以这样表达：
+
+> 我在 CareerPilot 中实现了一个轻量级 Application Tracker，用本地 JSON 文件作为最小 memory，保存公司、岗位、投递状态、匹配分、下一步动作和备注。这个模块让智能体不只是一次性生成建议，而是可以持续跟踪用户的求职流程。为了保证 demo 稳定性，我增加了状态枚举、重复记录检查、JSON 异常处理和单元测试。
+
+英文版本：
+
+> I implemented a lightweight Application Tracker as the local memory layer of CareerPilot. It stores company, role, application status, match score, next action, and notes in a JSON file. This allows the agent to track the user's job-search workflow over time instead of only generating one-off recommendations. I also added status validation, duplicate detection, JSON error handling, and unit tests to make the module reliable for demos.
+
+---
+
+### 明日计划：Day 7
+
+Day 7 的目标是打通端到端 Demo Flow。
+
+计划新增：
+
+```text
+careerpilot/demo.py
+examples/careerpilot/demo_report.md
+docs/demo_script.md
+```
+
+目标命令：
+
+```bash
+python -m careerpilot.demo \
+  --jd examples/careerpilot/sample_jd_backend.md \
+  --resume examples/careerpilot/sample_resume.md \
+  --project examples/careerpilot/sample_project_readme.md \
+  --output examples/careerpilot/demo_report.md
+```
+
+预期输出完整 Markdown 报告，包含：
+
+* JD 分析结果。
+* 简历匹配结果。
+* 项目经历重写结果。
+* 面试准备建议。
+* 投递状态记录。
+
 
