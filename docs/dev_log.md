@@ -941,4 +941,31 @@ python -m careerpilot.demo \
 * 面试准备建议。
 * 投递状态记录。
 
+## 2026-05-17 Day 7
+
+### 今日目标
+- 打通 CareerPilot 端到端 demo flow
+- 将 JD Analyzer、Resume Matcher、Project Story Extractor 和 Application Tracker 串联起来
+- 生成完整 Markdown demo report
+
+### 完成内容
+- 新增 `careerpilot/demo.py`
+- 支持通过命令行传入 JD、简历和项目 README
+- 自动生成 `examples/careerpilot/demo_report.md`
+- 报告包含 JD 分析、简历匹配、项目经历提炼、3 天面试准备计划和投递记录摘要
+- 新增 `docs/demo_script.md` 记录演示命令和讲解流程
+
+### 技术决策
+- 使用独立 demo 脚本先打通 MVP 闭环
+- 输出 Markdown，方便 README 展示、面试演示和人工审核
+- Application Tracker 继续使用本地 JSON，保持轻量可读
+
+### 遇到问题
+- `demo.py` 初版调用工具函数时与现有函数签名不一致
+- 通过对齐 `analyze_jd`、`match_resume` 和 `extract_project_story` 的实际参数结构修复
+- 后续 Day 8 再进一步研究 OpenHarness 原生运行方式和 skill/tool 接入边界
+
+### 明日计划
+- 研究 OpenHarness skill/tool 接入方式
+- 让 CareerPilot 不只是独立 Python demo，而是能体现 OpenHarness workflow 扩展
 

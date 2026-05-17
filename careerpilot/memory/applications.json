@@ -12,5 +12,18 @@
       "需要补充 MCP 和多 Agent 相关表述",
       "已完成第一版简历投递"
     ]
+  },
+  {
+    "company": "Example AI",
+    "role": "Backend Engineer",
+    "jd_source": "examples/careerpilot/sample_jd_backend.md",
+    "status": "preparing",
+    "match_score": 68,
+    "next_action": "review generated demo report and rewrite project bullets",
+    "created_at": "2026-05-17",
+    "updated_at": "2026-05-17",
+    "notes": [
+      "Generated from CareerPilot Day 7 demo flow."
+    ]
   }
 ]
