@@ -532,3 +532,75 @@ JD -> JD Analysis -> Resume Matching
 
 ### 备注
 当前版本是 deterministic matcher，不依赖 LLM。后续可接入模型增强 rewrite quality，但保留 schema validation 和规则评分逻辑。
+## 2026-05-17 Day 5
+
+### 今日目标
+- 实现 Project Story Extractor。
+- 将项目 README / 项目说明转化为简历项目经历、面试故事和潜在面试问题。
+- 保证输出结构稳定，便于后续 demo、测试和 README 展示。
+
+### 完成内容
+- 新增 `careerpilot/tools/project_story_extractor.py`。
+- 使用 Pydantic 定义输入输出结构：
+  - `ProjectStoryInput`
+  - `ProjectStoryOutput`
+  - `InterviewStory`
+- 实现规则版项目经历提炼逻辑：
+  - 提取项目一句话总结 `one_liner`
+  - 识别技术栈 `tech_stack`
+  - 生成架构亮点 `architecture_highlights`
+  - 生成中文简历 bullet `resume_bullets_cn`
+  - 生成英文简历 bullet `resume_bullets_en`
+  - 生成面试故事 `interview_story`
+  - 生成可能面试问题 `possible_interview_questions`
+- 新增样例项目说明文件：
+  - `examples/sample_project_readme.md`
+- 新增输出样例文件：
+  - `examples/output_project_bullets.md`
+- 新增测试文件：
+  - `tests/test_project_story_extractor.py`
+- 验证 `project_story_extractor.py` 可以独立运行并输出结构化 JSON。
+
+### 验证结果
+执行命令：
+
+```bash
+python careerpilot/tools/project_story_extractor.py
+运行成功，输出包含以下核心字段：
+
+one_liner
+tech_stack
+architecture_highlights
+resume_bullets_cn
+resume_bullets_en
+interview_story
+possible_interview_questions
+
+其中中文 bullet、英文 bullet、面试故事和面试问题均正常生成，满足 Day 5 验收标准。
+技术决策
+当前版本优先使用规则化关键词识别和模板化生成，而不是直接依赖 LLM。
+原因：
+输出更稳定，方便单元测试。
+demo 时不依赖模型 API，降低运行失败风险。
+后续可以在规则版基础上接入 LLM 作为增强层。
+使用 Pydantic schema 固定输入输出字段，便于后续接入 OpenHarness workflow 和端到端 demo。
+遇到问题
+当前技术栈识别依赖关键词匹配，如果输入样例中没有显式写出 Python、Pydantic 等关键词，输出中可能不会出现这些技术。
+后续可以通过改进样例 README 或扩展关键词映射表，让识别结果更完整。
+面试讲法
+
+今天实现的是 CareerPilot 的 Project Story Extractor。它的作用是把项目 README 或项目说明转化成可以直接用于简历和面试表达的结构化内容。相比直接让模型自由生成，我先用 Pydantic 固定 schema，再用规则和模板生成稳定输出，这样可以保证结果可测试、可复现，也方便后续接入 OpenHarness 的工具调用和端到端求职流程。
+简历 bullet 草稿
+
+中文：
+
+实现 Project Story Extractor 工具，基于 Pydantic schema 和规则化关键词识别，将项目 README 自动转化为中英文简历 bullet、架构亮点、STAR 面试故事和潜在面试问题，提升项目经历包装效率与输出稳定性。
+
+英文：
+
+Implemented a Project Story Extractor with Pydantic schemas and deterministic keyword extraction, converting README-style project descriptions into bilingual resume bullets, architecture highlights, STAR-style interview stories, and likely interview questions.
+明日计划
+实现 Application Tracker。
+使用本地 JSON 文件保存投递记录。
+支持新增申请、更新状态、查询待办和生成今日求职任务清单。
+
