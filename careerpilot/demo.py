@@ -5,11 +5,15 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List
 
-
-from careerpilot.tools.jd_analyzer import analyze_jd
-from careerpilot.tools.resume_matcher import match_resume, ResumeMatchInput
-from careerpilot.tools.project_story_extractor import extract_project_story
 from careerpilot.tools.application_tracker import add_application, list_applications
+from careerpilot.tools.interview_plan_generator import (
+    InterviewPlanInput,
+    format_interview_plan_markdown,
+    generate_interview_plan,
+)
+from careerpilot.tools.jd_analyzer import analyze_jd
+from careerpilot.tools.project_story_extractor import extract_project_story
+from careerpilot.tools.resume_matcher import ResumeMatchInput, match_resume
 
 
 def read_text(path: str) -> str:
@@ -22,99 +26,29 @@ def read_text(path: str) -> str:
 def to_dict(value: Any) -> Dict[str, Any]:
     if isinstance(value, dict):
         return value
-
     if hasattr(value, "model_dump"):
         return value.model_dump()
-
     if hasattr(value, "dict"):
         return value.dict()
-
     raise TypeError(f"Unsupported output type: {type(value)}")
 
 
 def format_item(item: Any) -> str:
     if isinstance(item, dict):
-        # Render common structured objects as readable Markdown instead of raw JSON.
-        if {"section", "before", "after"}.issubset(item.keys()):
-            return (
-                f"**{item.get('section', 'Suggestion')}**\n"
-                f"  - Before: {item.get('before', 'N/A')}\n"
-                f"  - After: {item.get('after', 'N/A')}"
-            )
-
-        if {"company", "role", "status", "match_score", "next_action"}.issubset(item.keys()):
-            notes = item.get("notes", [])
-            notes_text = ", ".join(notes) if isinstance(notes, list) else str(notes)
-            return (
-                f"**{item.get('company', 'Unknown Company')} — {item.get('role', 'Unknown Role')}**\n"
-                f"  - Status: {item.get('status', 'unknown')}\n"
-                f"  - Match Score: {item.get('match_score', 'N/A')}\n"
-                f"  - Next Action: {item.get('next_action', 'N/A')}\n"
-                f"  - Notes: {notes_text or 'None'}"
-            )
-
-        return json.dumps(item, ensure_ascii=False)
-
+        return json.dumps(item, ensure_ascii=False, default=str)
     return str(item)
 
 
 def format_list(items: Any) -> str:
     if not items:
         return "- None"
-
     if isinstance(items, list):
-        rendered_items = []
-        for item in items:
-            rendered = format_item(item)
-            if "\n" in rendered:
-                rendered_items.append(f"- {rendered}")
-            else:
-                rendered_items.append(f"- {rendered}")
-        return "\n".join(rendered_items)
-
+        return "\n".join(f"- {format_item(item)}" for item in items)
     return f"- {format_item(items)}"
 
 
 def pretty_json(value: Any) -> str:
-    return json.dumps(value, ensure_ascii=False, indent=2)
-
-
-def build_interview_plan(
-    jd_analysis: Dict[str, Any],
-    resume_match: Dict[str, Any],
-) -> str:
-    focus_topics = resume_match.get("interview_preparation_topics", [])
-    missing_skills = resume_match.get("missing_skills", [])
-    interview_focus = jd_analysis.get("interview_focus", [])
-
-    day1_topics = focus_topics[:3] or interview_focus[:3]
-    day2_topics = missing_skills[:3]
-    day3_topics = interview_focus[:3] or focus_topics[:3]
-
-    return f"""
-## 3-Day Interview Preparation Plan
-
-### Day 1: Core Role Requirements
-
-{format_list(day1_topics)}
-
-Deliverable:
-- Prepare 2 short project stories related to the target role.
-
-### Day 2: Skill Gaps and Weak Evidence
-
-{format_list(day2_topics)}
-
-Deliverable:
-- Write one STAR answer for each missing or weak skill.
-
-### Day 3: Mock Interview and Resume Story
-
-{format_list(day3_topics)}
-
-Deliverable:
-- Prepare a 2-minute self-introduction and 3 project deep-dive answers.
-""".strip()
+    return json.dumps(value, ensure_ascii=False, indent=2, default=str)
 
 
 def build_report(
@@ -124,11 +58,12 @@ def build_report(
     jd_analysis: Dict[str, Any],
     resume_match: Dict[str, Any],
     project_story: Dict[str, Any],
+    interview_plan: Dict[str, Any],
     applications: List[Dict[str, Any]],
 ) -> str:
-    interview_plan = build_interview_plan(jd_analysis, resume_match)
-
+    interview_plan_markdown = format_interview_plan_markdown(interview_plan)
     interview_story = project_story.get("interview_story", {})
+
     if not isinstance(interview_story, dict):
         interview_story = {}
 
@@ -249,7 +184,7 @@ Impact: {interview_story.get("impact", "N/A")}
 
 # 4. Interview Preparation Plan
 
-{interview_plan}
+{interview_plan_markdown}
 
 ---
 
@@ -273,11 +208,16 @@ Impact: {interview_story.get("impact", "N/A")}
 
 {pretty_json(project_story)}
 
+## Interview Plan JSON
+
+{pretty_json(interview_plan)}
+
 ---
 
 # 7. Human Review Notice
 
-This report is generated for drafting and preparation purposes. Please review all resume suggestions manually before using them in real applications.
+This report is generated for drafting and preparation purposes.
+Please review all resume suggestions manually before using them in real applications.
 """.strip()
 
 
@@ -314,6 +254,19 @@ def run_demo(args: argparse.Namespace) -> None:
         )
     )
 
+    interview_plan = to_dict(
+        generate_interview_plan(
+            InterviewPlanInput(
+                jd_analysis=jd_analysis,
+                resume_match=resume_match,
+                available_days=args.prep_days,
+                daily_hours=args.daily_hours,
+                target_role=args.target_role,
+                language=args.language,
+            )
+        )
+    )
+
     try:
         add_application(
             company=args.company,
@@ -321,8 +274,8 @@ def run_demo(args: argparse.Namespace) -> None:
             jd_source=args.jd,
             status="preparing",
             match_score=resume_match.get("match_score", 0),
-            next_action="review generated demo report and rewrite project bullets",
-            notes=["Generated from CareerPilot Day 7 demo flow."],
+            next_action="follow generated interview preparation plan and review resume bullets",
+            notes=["Generated from CareerPilot demo flow with interview preparation plan."],
         )
     except Exception as exc:
         print(f"[Warning] Failed to add application record: {exc}")
@@ -340,6 +293,7 @@ def run_demo(args: argparse.Namespace) -> None:
         jd_analysis=jd_analysis,
         resume_match=resume_match,
         project_story=project_story,
+        interview_plan=interview_plan,
         applications=applications,
     )
 
@@ -348,6 +302,8 @@ def run_demo(args: argparse.Namespace) -> None:
     output_path.write_text(report, encoding="utf-8")
 
     print(f"Demo report generated: {output_path}")
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run CareerPilot end-to-end demo flow."
@@ -387,6 +343,18 @@ def parse_args() -> argparse.Namespace:
         "--language",
         default="zh-CN",
         help="Output language.",
+    )
+    parser.add_argument(
+        "--prep-days",
+        type=int,
+        default=3,
+        help="Number of interview preparation days, usually 3 or 7.",
+    )
+    parser.add_argument(
+        "--daily-hours",
+        type=float,
+        default=2.0,
+        help="Available preparation hours per day.",
     )
 
     return parser.parse_args()

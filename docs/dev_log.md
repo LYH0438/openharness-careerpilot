@@ -1165,3 +1165,247 @@ Day 9 主要完成了 CareerPilot 的工程稳定性验证。当前 `tests/caree
   - Built CareerPilot Agent on top of OpenHarness with custom tools for JD analysis, resume matching, project story extraction, and application tracking, enabling an end-to-end job-search workflow from role analysis to interview preparation.
   - Designed structured output schemas and deterministic generation logic to convert job requirements, skill gaps, project highlights, and interview topics into testable and reusable career reports.
   - Improved Markdown report rendering and human-review safeguards, making agent outputs suitable for README demos, resume tailoring, and interview preparation workflows.
+
+## 2026-05-19 Day 12：增加 3 天 / 7 天面试准备计划
+
+### 今日目标
+
+今天的目标是补齐 CareerPilot Agent 求职闭环中的“面试准备计划”模块，让系统不仅能分析 JD、匹配简历、提炼项目经历，还能根据岗位要求和简历短板生成可执行的 3 天或 7 天面试准备计划。
+
+### 完成内容
+
+- 新增 `careerpilot/tools/interview_plan_generator.py`。
+- 新增结构化输入模型 `InterviewPlanInput`。
+- 新增每日计划模型 `InterviewDay`。
+- 新增结构化输出模型 `InterviewPlanOutput`。
+- 实现 `generate_interview_plan()`，根据 JD 分析结果和简历匹配结果生成准备计划。
+- 实现 `format_interview_plan_markdown()`，将结构化计划转换为 Markdown 报告。
+- 支持 `available_days` 参数，可以生成 3 天、7 天或其他 1-14 天范围内的计划。
+- 支持 `daily_hours` 参数，可以根据每天可投入时间输出计划。
+- 更新 `careerpilot/demo.py`，将原先 demo 内部的临时面试计划逻辑替换为正式工具调用。
+- 新增 `tests/careerpilot/test_interview_plan_generator.py`。
+- 新增 `examples/careerpilot/output_interview_plan.md`。
+- 更新 `examples/careerpilot/demo_report.md`，端到端报告现在包含 7 天面试准备计划。
+
+### 关键实现
+
+本次将面试计划从 demo 脚本中的固定模板升级为独立 Tool。
+
+输入包括：
+
+    {
+      "jd_analysis": "JD Analyzer 的结构化输出",
+      "resume_match": "Resume Matcher 的结构化输出",
+      "available_days": 7,
+      "daily_hours": 2,
+      "target_role": "Backend Engineer"
+    }
+
+输出包括：
+
+    {
+      "target_role": "Backend Engineer",
+      "available_days": 7,
+      "daily_hours": 2,
+      "priority_topics": [],
+      "daily_plan": [],
+      "final_checklist": [],
+      "human_review_notice": ""
+    }
+
+计划生成逻辑优先参考以下字段：
+
+- `resume_match.interview_preparation_topics`
+- `resume_match.missing_skills`
+- `resume_match.weak_evidence`
+- `jd_analysis.interview_focus`
+- `jd_analysis.core_skills`
+- `resume_match.resume_keywords_to_add`
+
+这样可以保证面试准备计划不是泛泛模板，而是和 JD 要求、简历缺口、项目证据弱点强相关。
+
+### 设计决策
+
+#### 1. 为什么单独新增 `interview_plan_generator.py`
+
+之前 demo 中已有一个简单的 3 天面试计划，但它只是 demo helper，不能被测试、复用或单独运行。
+
+本次将其抽象为独立 Tool，原因是：
+
+- 便于单元测试。
+- 便于未来接入 OpenHarness tool registry。
+- 便于 demo、CLI、IM gateway 或多 Agent 工作流复用。
+- 更符合 CareerPilot 的模块化设计：JD Analyzer、Resume Matcher、Project Story Extractor、Interview Plan Generator、Application Tracker 各自负责一个清晰能力。
+
+#### 2. 为什么使用规则生成而不是直接依赖 LLM
+
+半月版优先保证稳定可演示，因此本模块继续采用 deterministic rule-based generator。
+
+好处是：
+
+- 输出稳定。
+- 测试容易。
+- demo 不依赖外部模型调用。
+- 面试时可以清楚解释生成逻辑。
+- 避免 LLM 输出字段不稳定导致 demo report 崩溃。
+
+#### 3. 为什么保留 human review notice
+
+面试准备和简历修改都涉及真实经历表达，因此输出中继续保留人工审核提醒。
+
+这是为了避免：
+
+- 编造不存在的项目经历。
+- 夸大技能熟练度。
+- 把学习计划写成真实工作经验。
+- 在真实投递中直接使用未经审核的内容。
+
+### 测试结果
+
+新增测试通过：
+
+    python -m pytest -q tests/careerpilot/test_interview_plan_generator.py
+
+结果：
+
+    ... [100%]
+    3 passed in 0.03s
+
+CareerPilot 全量测试通过：
+
+    python -m pytest -q tests/careerpilot
+
+结果：
+
+    ..................... [100%]
+    21 passed in 0.06s
+
+### Demo 验证
+
+生成独立面试计划输出：
+
+    python -m careerpilot.tools.interview_plan_generator > examples/careerpilot/output_interview_plan.md
+
+生成 7 天端到端 demo report：
+
+    python -m careerpilot.demo \
+      --jd examples/careerpilot/sample_jd_backend.md \
+      --resume examples/careerpilot/sample_resume.md \
+      --project examples/careerpilot/sample_project_readme.md \
+      --output examples/careerpilot/demo_report.md \
+      --target-role "Backend Engineer" \
+      --company "Example AI" \
+      --prep-days 7 \
+      --daily-hours 2
+
+输出结果：
+
+    [Warning] Failed to add application record: Application already exists: Example AI - Backend Engineer
+    Demo report generated: examples/careerpilot/demo_report.md
+
+其中 warning 是正常现象，因为 Application Tracker 已经存在 `Example AI - Backend Engineer` 记录，重复记录保护生效，没有影响 demo report 生成。
+
+### Demo Report 检查
+
+使用以下命令检查报告内容：
+
+    grep -n "Interview Preparation Plan" examples/careerpilot/demo_report.md
+    grep -n "Day 7" examples/careerpilot/demo_report.md
+    grep -n "Final Checklist" examples/careerpilot/demo_report.md
+
+结果显示：
+
+    198:# 4. Interview Preparation Plan
+    200:# Interview Preparation Plan
+    303:## Day 7: Mock Interview and Final Review
+    321:## Final Checklist
+
+说明端到端报告中已经包含：
+
+- Interview Preparation Plan
+- 7 天准备计划
+- Day 7 模拟面试和最终复盘
+- Final Checklist
+
+### 今日产出文件
+
+    careerpilot/tools/interview_plan_generator.py
+    tests/careerpilot/test_interview_plan_generator.py
+    careerpilot/demo.py
+    examples/careerpilot/output_interview_plan.md
+    examples/careerpilot/demo_report.md
+    docs/dev_log.md
+
+### 当前项目状态
+
+Day 12 后，CareerPilot Agent 的 MVP 闭环已经进一步完整：
+
+    JD -> JD 分析 -> 简历匹配 -> 项目经历提炼 -> 面试准备计划 -> 投递记录 -> Demo Report
+
+相比 Day 7 的 demo flow，当前版本的面试准备计划已经从固定模板升级为可复用、可测试、结构化的正式模块。
+
+### 遇到的问题
+
+#### 问题 1：Application Tracker 重复记录 warning
+
+运行 demo 时出现：
+
+    [Warning] Failed to add application record: Application already exists: Example AI - Backend Engineer
+
+原因是之前 Day 7 已经写入过同一个公司和岗位的记录。
+
+当前处理方式：
+
+- 保留 warning。
+- 不影响 demo report 生成。
+- 不在 Day 12 中强行修改 memory 行为。
+
+后续可以在 Day 13 或 Day 14 中考虑优化：
+
+- demo 运行时允许更新已有记录。
+- 或增加 `--allow-update-application` 参数。
+- 或在 report 中显示“已有记录未重复添加”。
+
+#### 问题 2：`demo_report.md` 中 application tracker 仍显示 Day 7 的旧 next_action
+
+当前报告里仍能看到旧记录：
+
+    "next_action": "review generated demo report and rewrite project bullets"
+    "notes": ["Generated from CareerPilot Day 7 demo flow."]
+
+这不是 Day 12 功能错误，而是 Application Tracker 去重后没有覆盖旧记录导致的。
+
+后续计划：
+
+- 在文档中说明这是当前 MVP 的 known issue。
+- 后续增加 update existing application 的能力。
+
+### 技术收获
+
+今天主要完成了从“demo 内部逻辑”到“正式 Tool 模块”的升级。
+
+这体现了几个工程能力：
+
+- 用 Pydantic schema 固定输入输出结构。
+- 用 deterministic rules 保证 demo 稳定。
+- 用 pytest 覆盖新增模块。
+- 将业务逻辑从 demo script 中拆出，提升复用性。
+- 将 JD 分析、简历匹配和面试计划串成完整求职闭环。
+- 保留 human-in-the-loop，避免求职材料生成中的事实风险。
+
+### 可用于面试讲解的总结
+
+Day 12 我把 CareerPilot 的面试准备计划从 demo 中的固定模板升级成了独立工具。这个工具读取 JD Analyzer 和 Resume Matcher 的结构化输出，优先根据岗位面试重点、缺失技能、弱证据和关键词缺口生成 3 天或 7 天计划。每一天都会输出 focus、tasks、deliverables 和 estimated_hours，并且最后有 final checklist 和 human review notice。这样 CareerPilot 不只是给出分析报告，还能把岗位差距转化为可执行的面试准备行动。
+
+### 明日计划
+
+Day 13 进入文档补齐阶段，重点是让项目更容易被回看、复盘和面试展示。
+
+计划补充：
+
+- `docs/architecture.md`
+- `docs/decision_record.md`
+- `docs/demo_script.md`
+- `docs/known_issues.md`
+
+其中 `known_issues.md` 可以记录 Application Tracker 重复记录 warning 和当前 MVP 的边界。

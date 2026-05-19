@@ -122,18 +122,10 @@ mid
 
 ## Rewrite Suggestions
 
-- **Project Experience**
-  - Before: Built a backend system.
-  - After: Built a backend-focused service for Backend Engineer roles using Python, FastAPI, PostgreSQL, owning API design, data modeling, and implementation trade-offs; add one measurable result such as request latency, reliability, user scale, or development time saved.
-- **Skills / Keywords**
-  - Before: Listed general programming skills.
-  - After: Add targeted keywords such as TypeScript, 设计和维护后端服务, 开发和维护 API, 数据库设计与性能优化, but only when they are supported by real project or work experience.
-- **Gap Fix**
-  - Before: Missing JD requirements are not addressed.
-  - After: Create or rewrite one bullet to provide evidence for TypeScript; use the format: Built [feature] with [technology], solved [problem], and improved [metric/result].
-- **Impact Metrics**
-  - Before: Project bullets describe work without numbers.
-  - After: Add at least one quantified result, for example: reduced manual analysis time by X%, processed N records, supported N users, improved test coverage to X%, or shortened workflow time from A to B.
+- {"section": "Project Experience", "before": "Built a backend system.", "after": "Built a backend-focused service for Backend Engineer roles using Python, FastAPI, PostgreSQL, owning API design, data modeling, and implementation trade-offs; add one measurable result such as request latency, reliability, user scale, or development time saved."}
+- {"section": "Skills / Keywords", "before": "Listed general programming skills.", "after": "Add targeted keywords such as TypeScript, 设计和维护后端服务, 开发和维护 API, 数据库设计与性能优化, but only when they are supported by real project or work experience."}
+- {"section": "Gap Fix", "before": "Missing JD requirements are not addressed.", "after": "Create or rewrite one bullet to provide evidence for TypeScript; use the format: Built [feature] with [technology], solved [problem], and improved [metric/result]."}
+- {"section": "Impact Metrics", "before": "Project bullets describe work without numbers.", "after": "Add at least one quantified result, for example: reduced manual analysis time by X%, processed N records, supported N users, improved test coverage to X%, or shortened workflow time from A to B."}
 
 ## Interview Preparation Topics
 
@@ -205,47 +197,141 @@ Impact: 在 demo 场景中，可以把项目材料快速转化为可复用的简
 
 # 4. Interview Preparation Plan
 
-## 3-Day Interview Preparation Plan
+# Interview Preparation Plan
 
-### Day 1: Core Role Requirements
+Target role: **Backend Engineer**
+Schedule: **7 days × 2 hours/day**
 
+## Priority Topics
 - API 设计与后端服务实现
 - 数据库设计、索引和性能优化
 - 部署、云服务和 DevOps 基础
+- 系统设计与可扩展架构
+- TypeScript
+- 设计和维护后端服务
+- 开发和维护 API
+- Python
+- FastAPI
+- PostgreSQL
+- 数据库设计与性能优化
+- 补强薄弱证据与量化结果
 
-Deliverable:
-- Prepare 2 short project stories related to the target role.
+## Day 1: Backend API Fundamentals
 
-### Day 2: Skill Gaps and Weak Evidence
+Focus:
+- API 设计与后端服务实现
 
+Tasks:
+- 复习 REST API 设计、认证授权、错误处理、分页和幂等性。
+- 整理一个你在项目中设计或维护 API 的案例，说明输入、输出、边界和失败处理。
+- 准备 2 个英文回答：API design trade-off 和 backend service ownership。
+
+Deliverables:
+- 2 个 API 设计面试回答
+- 1 个后端服务 STAR 项目故事
+
+## Day 2: Database and Performance
+
+Focus:
+- 数据库设计、索引和性能优化
+
+Tasks:
+- 复习索引、事务、慢查询、连接池和缓存的基础概念。
+- 把项目中的数据库使用场景改写成一个性能优化或数据建模故事。
+- 准备解释：什么时候加索引、什么时候用缓存、如何排查慢查询。
+
+Deliverables:
+- 1 个数据库优化 STAR 故事
+- 3 个数据库高频问题的要点答案
+
+## Day 3: Deployment, Cloud, and DevOps
+
+Focus:
+- 部署、云服务和 DevOps 基础
+
+Tasks:
+- 复习 Docker 镜像、容器运行、环境变量、日志和基础部署流程。
+- 整理你项目中可诚实描述的部署、测试或 CI/CD 经验。
+- 准备说明你如何让一个服务从本地脚本变成可运行 demo。
+
+Deliverables:
+- 1 个部署或 CI/CD 项目回答
+- 1 份可加入简历的 DevOps 证据 bullet 草稿
+
+## Day 4: System Design and Scalability
+
+Focus:
+- 系统设计与可扩展架构
+
+Tasks:
+- 复习容量估算、API 边界、数据存储、缓存、异步任务和故障处理。
+- 用 CareerPilot demo 画出一个简单系统设计讲法：输入、工具、报告、memory。
+- 准备回答：如何从单脚本演进到多 Agent 或 RAG 系统。
+
+Deliverables:
+- 1 个系统设计口述大纲
+- 1 张文字版架构图或流程图
+
+## Day 5: Role Requirement Deep Dive: TypeScript
+
+Focus:
 - TypeScript
 
-Deliverable:
-- Write one STAR answer for each missing or weak skill.
+Tasks:
+- 复习 JD 中与 `TypeScript` 相关的基础概念、常见问题和项目使用场景。
+- 把该主题映射到你的简历证据：项目、课程、工具或真实经历。
+- 准备一个 60-90 秒回答，说明你如何学习或实践过该主题。
 
-### Day 3: Mock Interview and Resume Story
+Deliverables:
+- 1 个围绕 `TypeScript` 的面试回答
+- 1 条可人工审核的简历补充建议
 
+## Day 6: Backend API Fundamentals
+
+Focus:
+- 设计和维护后端服务
+
+Tasks:
+- 复习 REST API 设计、认证授权、错误处理、分页和幂等性。
+- 整理一个你在项目中设计或维护 API 的案例，说明输入、输出、边界和失败处理。
+- 准备 2 个英文回答：API design trade-off 和 backend service ownership。
+
+Deliverables:
+- 2 个 API 设计面试回答
+- 1 个后端服务 STAR 项目故事
+
+## Day 7: Mock Interview and Final Review
+
+Focus:
 - API 设计与后端服务实现
 - 数据库设计、索引和性能优化
 - 部署、云服务和 DevOps 基础
+- 系统设计与可扩展架构
 
-Deliverable:
-- Prepare a 2-minute self-introduction and 3 project deep-dive answers.
+Tasks:
+- 进行一轮 30-45 分钟模拟面试：自我介绍、项目深挖、技术基础、行为问题。
+- 检查每个高优先级主题是否都有一个真实项目证据或诚实的学习计划。
+- 复盘回答中过度夸大、缺少数字、缺少技术细节的地方。
+
+Deliverables:
+- 1 份 2 分钟英文自我介绍
+- 3 个项目深挖答案
+- 1 份最后修改清单
+
+## Final Checklist
+- 每个 JD 核心技能至少对应一个简历或项目证据。
+- 每个缺失技能都有诚实表述：补项目证据、写 familiar，或放入学习计划。
+- 至少准备 3 个 STAR 项目故事：后端实现、问题排查、结果影响。
+- 所有简历修改都需要人工审核，不能编造经历或夸大熟练度。
+
+> Human review required: This interview plan is generated for preparation purposes. Verify every resume claim and project story before using it in real applications.
 
 ---
 
 # 5. Application Tracker Summary
 
-- **Example AI — AI Agent Engineer**
-  - Status: applied
-  - Match Score: 78
-  - Next Action: prepare backend system design interview answers
-  - Notes: 需要补充 MCP 和多 Agent 相关表述, 已完成第一版简历投递
-- **Example AI — Backend Engineer**
-  - Status: preparing
-  - Match Score: 68
-  - Next Action: review generated demo report and rewrite project bullets
-  - Notes: Generated from CareerPilot Day 7 demo flow.
+- {"company": "Example AI", "role": "AI Agent Engineer", "jd_source": "examples/careerpilot/sample_jd_backend.md", "status": "applied", "match_score": 78, "next_action": "prepare backend system design interview answers", "created_at": "2026-05-17", "updated_at": "2026-05-17", "notes": ["需要补充 MCP 和多 Agent 相关表述", "已完成第一版简历投递"]}
+- {"company": "Example AI", "role": "Backend Engineer", "jd_source": "examples/careerpilot/sample_jd_backend.md", "status": "preparing", "match_score": 68, "next_action": "review generated demo report and rewrite project bullets", "created_at": "2026-05-17", "updated_at": "2026-05-17", "notes": ["Generated from CareerPilot Day 7 demo flow."]}
 
 ---
 
@@ -425,8 +511,163 @@ Deliverable:
   ]
 }
 
+## Interview Plan JSON
+
+{
+  "target_role": "Backend Engineer",
+  "available_days": 7,
+  "daily_hours": 2.0,
+  "priority_topics": [
+    "API 设计与后端服务实现",
+    "数据库设计、索引和性能优化",
+    "部署、云服务和 DevOps 基础",
+    "系统设计与可扩展架构",
+    "TypeScript",
+    "设计和维护后端服务",
+    "开发和维护 API",
+    "Python",
+    "FastAPI",
+    "PostgreSQL",
+    "数据库设计与性能优化",
+    "补强薄弱证据与量化结果"
+  ],
+  "daily_plan": [
+    {
+      "day": 1,
+      "title": "Backend API Fundamentals",
+      "focus": [
+        "API 设计与后端服务实现"
+      ],
+      "tasks": [
+        "复习 REST API 设计、认证授权、错误处理、分页和幂等性。",
+        "整理一个你在项目中设计或维护 API 的案例，说明输入、输出、边界和失败处理。",
+        "准备 2 个英文回答：API design trade-off 和 backend service ownership。"
+      ],
+      "deliverables": [
+        "2 个 API 设计面试回答",
+        "1 个后端服务 STAR 项目故事"
+      ],
+      "estimated_hours": 2.0
+    },
+    {
+      "day": 2,
+      "title": "Database and Performance",
+      "focus": [
+        "数据库设计、索引和性能优化"
+      ],
+      "tasks": [
+        "复习索引、事务、慢查询、连接池和缓存的基础概念。",
+        "把项目中的数据库使用场景改写成一个性能优化或数据建模故事。",
+        "准备解释：什么时候加索引、什么时候用缓存、如何排查慢查询。"
+      ],
+      "deliverables": [
+        "1 个数据库优化 STAR 故事",
+        "3 个数据库高频问题的要点答案"
+      ],
+      "estimated_hours": 2.0
+    },
+    {
+      "day": 3,
+      "title": "Deployment, Cloud, and DevOps",
+      "focus": [
+        "部署、云服务和 DevOps 基础"
+      ],
+      "tasks": [
+        "复习 Docker 镜像、容器运行、环境变量、日志和基础部署流程。",
+        "整理你项目中可诚实描述的部署、测试或 CI/CD 经验。",
+        "准备说明你如何让一个服务从本地脚本变成可运行 demo。"
+      ],
+      "deliverables": [
+        "1 个部署或 CI/CD 项目回答",
+        "1 份可加入简历的 DevOps 证据 bullet 草稿"
+      ],
+      "estimated_hours": 2.0
+    },
+    {
+      "day": 4,
+      "title": "System Design and Scalability",
+      "focus": [
+        "系统设计与可扩展架构"
+      ],
+      "tasks": [
+        "复习容量估算、API 边界、数据存储、缓存、异步任务和故障处理。",
+        "用 CareerPilot demo 画出一个简单系统设计讲法：输入、工具、报告、memory。",
+        "准备回答：如何从单脚本演进到多 Agent 或 RAG 系统。"
+      ],
+      "deliverables": [
+        "1 个系统设计口述大纲",
+        "1 张文字版架构图或流程图"
+      ],
+      "estimated_hours": 2.0
+    },
+    {
+      "day": 5,
+      "title": "Role Requirement Deep Dive: TypeScript",
+      "focus": [
+        "TypeScript"
+      ],
+      "tasks": [
+        "复习 JD 中与 `TypeScript` 相关的基础概念、常见问题和项目使用场景。",
+        "把该主题映射到你的简历证据：项目、课程、工具或真实经历。",
+        "准备一个 60-90 秒回答，说明你如何学习或实践过该主题。"
+      ],
+      "deliverables": [
+        "1 个围绕 `TypeScript` 的面试回答",
+        "1 条可人工审核的简历补充建议"
+      ],
+      "estimated_hours": 2.0
+    },
+    {
+      "day": 6,
+      "title": "Backend API Fundamentals",
+      "focus": [
+        "设计和维护后端服务"
+      ],
+      "tasks": [
+        "复习 REST API 设计、认证授权、错误处理、分页和幂等性。",
+        "整理一个你在项目中设计或维护 API 的案例，说明输入、输出、边界和失败处理。",
+        "准备 2 个英文回答：API design trade-off 和 backend service ownership。"
+      ],
+      "deliverables": [
+        "2 个 API 设计面试回答",
+        "1 个后端服务 STAR 项目故事"
+      ],
+      "estimated_hours": 2.0
+    },
+    {
+      "day": 7,
+      "title": "Mock Interview and Final Review",
+      "focus": [
+        "API 设计与后端服务实现",
+        "数据库设计、索引和性能优化",
+        "部署、云服务和 DevOps 基础",
+        "系统设计与可扩展架构"
+      ],
+      "tasks": [
+        "进行一轮 30-45 分钟模拟面试：自我介绍、项目深挖、技术基础、行为问题。",
+        "检查每个高优先级主题是否都有一个真实项目证据或诚实的学习计划。",
+        "复盘回答中过度夸大、缺少数字、缺少技术细节的地方。"
+      ],
+      "deliverables": [
+        "1 份 2 分钟英文自我介绍",
+        "3 个项目深挖答案",
+        "1 份最后修改清单"
+      ],
+      "estimated_hours": 2.0
+    }
+  ],
+  "final_checklist": [
+    "每个 JD 核心技能至少对应一个简历或项目证据。",
+    "每个缺失技能都有诚实表述：补项目证据、写 familiar，或放入学习计划。",
+    "至少准备 3 个 STAR 项目故事：后端实现、问题排查、结果影响。",
+    "所有简历修改都需要人工审核，不能编造经历或夸大熟练度。"
+  ],
+  "human_review_notice": "This interview plan is generated for preparation purposes. Verify every resume claim and project story before using it in real applications."
+}
+
 ---
 
 # 7. Human Review Notice
 
-This report is generated for drafting and preparation purposes. Please review all resume suggestions manually before using them in real applications.
+This report is generated for drafting and preparation purposes.
+Please review all resume suggestions manually before using them in real applications.
