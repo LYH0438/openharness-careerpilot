@@ -1,417 +1,399 @@
-# <img src="assets/logo.png" alt="OpenHarness" width="40" style="vertical-align: middle;"> `oh` — OpenHarness 中文说明
+# CareerPilot Agent
 
-<p align="center">
-  <a href="README.md"><strong>English</strong></a> ·
-  <a href="README.zh-CN.md"><strong>简体中文</strong></a>
-</p>
+[English](README.md) · [简体中文](README.zh-CN.md)
 
-**OpenHarness** 是一个面向开源社区的 Agent Harness。它提供轻量、可扩展、可检查的 Agent 基础设施，包括：
+**CareerPilot Agent** 是一个基于 OpenHarness 二次开发的个人求职流程智能体。
 
-- Agent loop
-- tools / skills / plugins
-- memory / session resume
-- permissions / hooks
-- multi-agent coordination
-- provider workflows
-- React TUI
-- `ohmo` personal-agent app
+它面向求职场景，帮助用户完成岗位 JD 分析、简历匹配、项目经历提炼、面试准备计划生成和投递状态管理。项目目标不是做一个普通聊天机器人，而是基于 OpenHarness 的 Tool、Skill、Memory 和 CLI 能力，构建一个可运行、可测试、可演示、可写进简历的垂直领域 Agent 项目。
 
 ---
 
-## 最新更新
+## 项目背景
 
-### Unreleased · Dry-run 安全预览
+求职过程中，用户经常需要针对不同岗位重复完成以下工作：
 
-- 新增 `oh --dry-run`，可以在**不执行模型、不执行工具、不 spawn subagent** 的前提下，预览当前会话会使用的配置、skills、commands、tools 和 MCP 配置。
-- Dry-run 会给出 `ready / warning / blocked` 结论，并直接告诉你下一步该做什么，例如先修认证、先修 MCP 配置，或者可以直接运行。
-- 对普通 prompt，会给出可能命中的 skills / tools；对 slash command，会展示它更偏只读还是会改本地状态。
+- 阅读岗位描述，判断岗位真正需要什么能力。
+- 对照自己的简历，找出匹配点和短板。
+- 针对岗位重写项目经历和简历 bullet。
+- 根据短板准备面试复习计划。
+- 记录投递状态和下一步动作。
 
-### 2026-04-06 · v0.1.2
+这些任务如果手动完成，通常耗时较长，而且容易不系统。
 
-- 新增统一配置入口 `oh setup`
-- provider 配置从“auth -> provider -> model”收敛成 workflow 视角
-- Anthropic/OpenAI 兼容接口支持 profile 级凭据，不再强制共用一把全局 key
-- 新增 `ohmo` personal-agent app
-- `ohmo` 使用 `~/.ohmo` 作为 home workspace，支持 gateway、bootstrap prompts 和交互式 channel 配置
+CareerPilot Agent 将这个过程整理成一个结构化工作流：
+
+```text
+岗位 JD
+  -> JD 分析
+  -> 简历匹配
+  -> 项目经历提炼
+  -> 面试准备计划
+  -> 投递状态记录
+```
+
+---
+
+## 为什么基于 OpenHarness？
+
+OpenHarness 提供了轻量级 Agent Harness 的基础能力，包括：
+
+- CLI 运行方式
+- Tool-use 工作流
+- Markdown Skill 加载
+- 本地 Memory 模式
+- 权限与执行边界
+- dry-run 检查
+- 可测试的 Python 项目结构
+
+CareerPilot Agent 在 OpenHarness 上层扩展求职场景能力，把通用 Agent 框架转化为一个具体的求职流程智能体。
+
+---
+
+## 核心功能
+
+### 1. JD Analyzer
+
+JD Analyzer 用于解析岗位描述，输出结构化岗位分析。
+
+输出内容包括：
+
+- 岗位一句话总结
+- 岗位级别判断
+- 核心技能
+- 加分技能
+- 主要职责
+- 简历关键词
+- 面试关注点
+- 风险提示
+
+---
+
+### 2. Resume Matcher
+
+Resume Matcher 用于对比简历和岗位要求，生成可解释的岗位匹配报告。
+
+输出内容包括：
+
+- 匹配分数
+- 强匹配项
+- 缺失技能
+- 证据不足的经历
+- 建议补充的关键词
+- 简历改写建议
+- 面试准备主题
+
+匹配分数不是黑盒分数，而是基于技能覆盖、项目证据和岗位职责覆盖进行解释性计算。
+
+---
+
+### 3. Project Story Extractor
+
+Project Story Extractor 用于把项目 README 或项目说明转化为适合简历和面试表达的项目经历。
+
+输出内容包括：
+
+- 项目一句话总结
+- 技术栈
+- 架构亮点
+- 中文简历 bullet
+- 英文简历 bullet
+- 面试讲述故事
+- 可能被问到的面试问题
+
+---
+
+### 4. Application Tracker
+
+Application Tracker 使用本地 JSON 文件保存投递记录。
+
+支持：
+
+- 新增投递记录
+- 更新投递状态
+- 查询当前申请
+- 生成下一步动作
+
+当前 MVP 使用轻量 JSON 文件，而不是数据库，方便本地演示、测试和人工检查。
+
+---
+
+### 5. OpenHarness Skill 集成
+
+CareerPilot 使用 Markdown Skill 描述求职场景工作流，让 OpenHarness 能够识别和组织 CareerPilot 的求职任务。
+
+当前包含：
+
+```text
+careerpilot/skills/
+  career-coach.md
+  resume-rewriter.md
+  interview-prep.md
+```
+
+---
+
+## 项目结构
+
+```text
+careerpilot/
+  __init__.py
+  demo.py
+  openharness_adapter.py
+  tools/
+    jd_analyzer.py
+    resume_matcher.py
+    project_story_extractor.py
+    application_tracker.py
+  skills/
+    career-coach.md
+    resume-rewriter.md
+    interview-prep.md
+  memory/
+    applications.json
+
+examples/
+  careerpilot/
+    sample_jd_backend.md
+    sample_resume.md
+    sample_project_readme.md
+    output_jd_analysis.json
+    output_resume_match.md
+    output_project_bullets.md
+    demo_report.md
+
+tests/
+  careerpilot/
+    test_jd_analyzer.py
+    test_resume_matcher.py
+    test_project_story_extractor.py
+    test_application_tracker.py
+
+docs/
+  dev_log.md
+  demo_script.md
+  openharness_integration.md
+```
+
+---
+
+## 系统架构
+
+```mermaid
+flowchart TD
+    A[用户输入] --> B[OpenHarness CLI / oh -p]
+    B --> C[Career Coach Skill]
+    C --> D[JD Analyzer Tool]
+    C --> E[Resume Matcher Tool]
+    C --> F[Project Story Extractor Tool]
+    C --> G[Application Tracker Tool]
+
+    D --> H[结构化 JD 分析]
+    E --> I[简历匹配报告]
+    F --> J[简历 Bullet 和面试故事]
+    G --> K[本地投递 Memory]
+
+    H --> L[Demo Report]
+    I --> L
+    J --> L
+    K --> L
+```
 
 ---
 
 ## 快速开始
 
-### 一键安装
+### 1. 克隆仓库
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/HKUDS/OpenHarness/main/scripts/install.sh | bash
+git clone https://github.com/LYH0438/openharness-careerpilot.git
+cd openharness-careerpilot
+git checkout feature/careerpilot-agent
 ```
 
-常用安装参数：
-
-- `--from-source`：从源码安装，适合贡献者
-- `--with-channels`：一并安装 IM channel 依赖
-
-例如：
+### 2. 安装依赖
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/HKUDS/OpenHarness/main/scripts/install.sh | bash -s -- --from-source --with-channels
+uv sync
 ```
 
-### 本地运行
+### 3. 运行 CareerPilot Demo
 
 ```bash
-git clone https://github.com/HKUDS/OpenHarness.git
-cd OpenHarness
-uv sync --extra dev
-uv run oh
+python -m careerpilot.demo \
+  --jd examples/careerpilot/sample_jd_backend.md \
+  --resume examples/careerpilot/sample_resume.md \
+  --project examples/careerpilot/sample_project_readme.md \
+  --output examples/careerpilot/demo_report.md
 ```
 
----
-
-## 配置模型与 Provider
-
-现在最推荐的入口是：
+### 4. 查看输出报告
 
 ```bash
-oh setup
-```
-
-`oh setup` 会按下面的顺序引导：
-
-1. 选择一个 workflow
-2. 如果需要，完成认证
-3. 选择具体后端 preset
-4. 确认模型
-5. 保存并激活 profile
-
-当前内置 workflow 包括：
-
-- `Anthropic-Compatible API`
-- `Claude Subscription`
-- `OpenAI-Compatible API`
-- `Codex Subscription`
-- `GitHub Copilot`
-
-### Anthropic-Compatible API
-
-适合这类后端：
-
-- Claude 官方 API
-- Moonshot / Kimi
-- Zhipu / GLM
-- MiniMax
-- 其他 Anthropic-compatible endpoint
-
-### OpenAI-Compatible API
-
-适合这类后端：
-
-- OpenAI 官方 API
-- OpenRouter
-- DashScope
-- DeepSeek
-- GitHub Models
-- SiliconFlow
-- Google Gemini
-- Groq
-- Ollama
-- 其他 OpenAI-compatible endpoint
-
-### 常用命令
-
-```bash
-# 统一配置入口
-oh setup
-
-# 查看已有 workflow/profile
-oh provider list
-
-# 切换当前 workflow
-oh provider use codex
-
-# 查看认证状态
-oh auth status
-```
-
-### 高级：添加自定义兼容接口
-
-如果内置 preset 不够，可以直接新增 profile：
-
-```bash
-oh provider add my-endpoint \
-  --label "My Endpoint" \
-  --provider anthropic \
-  --api-format anthropic \
-  --auth-source anthropic_api_key \
-  --model my-model \
-  --base-url https://example.com/anthropic
-```
-
-这一版开始，兼容接口可以按 profile 绑定凭据。  
-也就是说，`Kimi`、`GLM`、`MiniMax` 这类 Anthropic-compatible 后端，不需要再共用一把全局 `anthropic` key。
-
----
-
-## 交互模式与 TUI
-
-运行：
-
-```bash
-oh
-```
-
-你会得到 React/Ink TUI，支持：
-
-- `/` 命令选择器
-- 交互式权限确认
-- `/model` 模型切换
-- `/permissions` 权限模式切换
-- `/resume` 会话恢复
-- `/provider` workflow 选择
-
-非交互模式也支持：
-
-```bash
-oh -p "Explain this repository"
-oh -p "List all functions in main.py" --output-format json
-oh -p "Fix the bug" --output-format stream-json
-```
-
-### Dry-run 安全预览
-
-如果你想先看 OpenHarness **会怎么跑**，但又不想真的执行模型或工具，可以用：
-
-```bash
-# 预览交互会话本身
-oh --dry-run
-
-# 预览一个普通 prompt
-oh --dry-run -p "Review this bug fix and grep for failing tests"
-
-# 预览 slash command
-oh --dry-run -p "/plugin list"
-
-# 输出结构化 JSON，方便脚本或 channel 使用
-oh --dry-run -p "Explain this repository" --output-format json
-```
-
-Dry-run 的边界是明确的：
-
-- **不会**调用模型
-- **不会**执行 tools
-- **不会**启动 subagent
-- **不会**连接 MCP server
-- **会**解析 settings、auth 状态、system prompt、skills、commands、tools，以及明显错误的 MCP 配置
-
-Readiness 结论说明：
-
-- `ready`：当前配置基本可直接运行
-- `warning`：能解析会话，但仍有重要问题需要先处理，比如 MCP 配置错误或后续模型调用缺认证
-- `blocked`：按当前状态直接运行会失败，比如 slash command 不存在，或者普通 prompt 无法解析 runtime client
-
-Dry-run 输出里的 `next actions` 会直接给出下一步建议，例如：
-
-- 先执行 `oh auth login`
-- 先修或禁用坏掉的 MCP 配置
-- 直接运行 `oh -p "..."` 或进入 `oh`
-
----
-
-## Provider 兼容性概览
-
-OpenHarness 现在把 provider 视为 **workflow + profile**，而不是只暴露底层协议名。
-
-| Workflow | 说明 |
-|----------|------|
-| `Anthropic-Compatible API` | Anthropic 风格接口，适合 Claude/Kimi/GLM/MiniMax 等 |
-| `Claude Subscription` | 复用本地 `~/.claude/.credentials.json` |
-| `OpenAI-Compatible API` | OpenAI 风格接口，适合 OpenAI/OpenRouter/各种兼容网关 |
-| `Codex Subscription` | 复用本地 `~/.codex/auth.json` |
-| `GitHub Copilot` | GitHub Copilot OAuth workflow |
-
-日常推荐用法：
-
-```bash
-oh setup
-oh provider list
-oh provider use <profile>
+cat examples/careerpilot/demo_report.md
 ```
 
 ---
 
-## `ohmo` Personal Agent
+## OpenHarness Dry Run 示例
 
-`ohmo` 是基于 OpenHarness 的 personal-agent app，不是 core 的一个 mode。
-
-### 初始化
+CareerPilot 也可以通过 OpenHarness 风格的 prompt 触发 dry-run 检查：
 
 ```bash
-ohmo init
+uv run oh --dry-run -p "Use career-coach skill. Analyze examples/careerpilot/sample_jd_backend.md and compare it with examples/careerpilot/sample_resume.md. Generate a job-fit report using CareerPilot."
 ```
 
-这会创建：
-
-- `~/.ohmo/soul.md`
-- `~/.ohmo/identity.md`
-- `~/.ohmo/user.md`
-- `~/.ohmo/BOOTSTRAP.md`
-- `~/.ohmo/memory/`
-- `~/.ohmo/gateway.json`
-
-其中：
-
-- `soul.md`：长期人格与行为原则
-- `identity.md`：`ohmo` 自己是谁
-- `user.md`：用户画像、偏好、关系信息
-- `BOOTSTRAP.md`：首轮 landing / onboarding ritual
-- `memory/`：personal memory
-- `gateway.json`：gateway 的 profile 和 channel 配置
-
-### 配置
-
-```bash
-ohmo config
-```
-
-`ohmo config` 会用和 `oh setup` 一致的 workflow 语言来配置 gateway，例如：
-
-- `Anthropic-Compatible API`
-- `Claude Subscription`
-- `OpenAI-Compatible API`
-- `Codex Subscription`
-- `GitHub Copilot`
-
-目前 `ohmo init` / `ohmo config` 已支持引导式配置这些 channel：
-
-- Telegram
-- Slack
-- Discord
-- Feishu
-
-如果 gateway 已经在运行，配置完成后也可以直接选择是否重启。
-
-### 运行
-
-```bash
-# 运行 personal agent
-ohmo
-
-# 前台运行 gateway
-ohmo gateway run
-
-# 查看 gateway 状态
-ohmo gateway status
-
-# 重启 gateway
-ohmo gateway restart
-```
+dry-run 用于检查运行配置、prompt 组装、skill 发现和执行准备状态，不会真正执行模型调用或工具调用。
 
 ---
 
-## OpenHarness 的核心能力
+## 示例输出
 
-### Agent Loop
+CareerPilot 可以生成完整的岗位匹配报告，包括：
 
-- streaming tool-call cycle
-- tool execution / observation / loop
-- retry + exponential backoff
-- token counting 与成本跟踪
+- JD 分析
+- 简历匹配分
+- 缺失技能分析
+- 简历改写建议
+- 项目经历 bullet
+- 面试准备主题
+- 投递状态摘要
 
-### Tools / Skills / Plugins
+示例文件位于：
 
-- 43+ tools
-- Markdown skills 按需加载
-- 插件生态
-- 兼容 `anthropics/skills`
-- 兼容 Claude-style plugins
-
-### Memory / Session
-
-- `CLAUDE.md` 自动发现与注入
-- `MEMORY.md` 持久记忆
-- session resume
-- auto-compact
-
-### Governance
-
-- 多级 permission mode
-- path rules
-- denied commands
-- hooks
-- interactive approval
-
-### Multi-Agent
-
-- subagent spawning
-- team registry
-- task lifecycle
-- background task execution
-
----
-
-## 常见命令
-
-### `oh`
-
-```bash
-oh setup
-oh provider list
-oh provider use codex
-oh auth status
-oh -p "Explain this codebase"
-oh
-```
-
-### `ohmo`
-
-```bash
-ohmo init
-ohmo config
-ohmo
-ohmo gateway run
-ohmo gateway status
-ohmo gateway restart
+```text
+examples/careerpilot/
 ```
 
 ---
 
 ## 测试
 
+运行 CareerPilot 专属测试：
+
 ```bash
-uv run pytest -q
-python scripts/test_harness_features.py
-python scripts/test_real_skills_plugins.py
+python -m pytest -q tests/careerpilot
+```
+
+当前结果：
+
+```text
+18 passed in 0.05s
+```
+
+运行 OpenHarness 全仓库测试：
+
+```bash
+python -m pytest -q
+```
+
+当前结果：
+
+```text
+1067 passed, 6 skipped in 23.88s
 ```
 
 ---
 
-## 贡献
+## 实现细节
 
-欢迎贡献：
+### 结构化输出
 
-- tools
-- skills
-- plugins
-- providers
-- multi-agent coordination
-- tests
-- 文档与中文翻译
+CareerPilot 的工具输出稳定的字典和 Markdown 报告，便于测试、展示和后续自动化处理。
 
-开发环境：
+### 可解释匹配分
 
-```bash
-git clone https://github.com/HKUDS/OpenHarness.git
-cd OpenHarness
-uv sync --extra dev
-uv run pytest -q
+Resume Matcher 的匹配逻辑不是单纯让模型给分，而是基于以下因素进行解释性计算：
+
+```text
+match_score = 技能覆盖 + 项目证据覆盖 + 岗位职责覆盖
 ```
 
-更多信息：
+分数会被限制在 0 到 100 之间，避免异常输出。
 
-- [贡献指南](CONTRIBUTING.md)
-- [更新日志](CHANGELOG.md)
-- [Showcase](docs/SHOWCASE.md)
+### 本地 Memory
+
+Application Tracker 使用本地 JSON 文件保存投递记录：
+
+```text
+careerpilot/memory/applications.json
+```
+
+这种方式适合 MVP 阶段，因为它简单、可读、易测试，不需要额外数据库服务。
+
+### Skill 驱动工作流
+
+CareerPilot 使用 Markdown Skill 定义求职工作流。Skill 文件描述了何时使用该流程、需要哪些输入、应该调用哪些工具，以及最终应该输出什么报告。
+
+---
+
+## 开发日志
+
+开发过程记录在：
+
+```text
+docs/dev_log.md
+```
+
+当前已完成里程碑：
+
+- Day 1：OpenHarness 环境搭建
+- Day 2：CareerPilot Skill 草稿
+- Day 3：JD Analyzer Tool
+- Day 4：Resume Matcher Tool
+- Day 5：Project Story Extractor
+- Day 6：Application Tracker
+- Day 7：端到端 Demo Flow
+- Day 8：OpenHarness 运行方式接入
+- Day 9：测试与稳定性验证
+- Day 10：README 第一版
+
+---
+
+## Roadmap
+
+### v0.1 MVP
+
+- [x] JD Analyzer
+- [x] Resume Matcher
+- [x] Project Story Extractor
+- [x] Application Tracker
+- [x] 端到端 Demo Report
+- [x] OpenHarness dry-run 集成
+- [x] 核心测试
+
+### v0.2 计划增强
+
+- [ ] ohmo / IM 渠道接入
+- [ ] 简历与项目知识库
+- [ ] 多 Agent 求职工作流
+- [ ] Benchmark 与质量评估
+- [ ] GitHub 项目理解器
+- [ ] 简历版本管理
+- [ ] 安全策略与人工审核流程
+
+---
+
+## 简历描述
+
+### 中文版
+
+基于 OpenHarness 二次开发 CareerPilot Agent 求职流程智能体，扩展 JD 解析、简历匹配、项目经历提炼和投递记录管理工具，结合 Markdown Skill、本地 JSON Memory、结构化输出、端到端 Demo 和 pytest 测试，实现从岗位分析到简历优化和面试准备的自动化闭环。
+
+### 英文版
+
+Built CareerPilot Agent, a domain-specific job-search agent on top of OpenHarness. Implemented custom tools for JD parsing, resume-job matching, project story extraction, and application tracking, with structured outputs, local JSON memory, markdown skills, CLI demo workflow, and pytest-based validation.
+
+---
+
+## 当前限制
+
+- 当前匹配分是启发式评分，重点是可解释和可测试，而不是严格 benchmark 后的模型评分。
+- 简历修改建议必须经过人工审核后才能用于真实投递。
+- 当前 OpenHarness 集成以 dry-run 和 skill-guided workflow 验证为主。
+- ohmo / IM 渠道接入计划放在后续版本完成。
 
 ---
 
 ## License
 
-MIT，见 [LICENSE](LICENSE)。
+本项目基于 OpenHarness fork 后进行场景化扩展。基础框架许可请参考上游 OpenHarness 项目 license。

@@ -1,5 +1,8 @@
 # CareerPilot Agent
 
+[English](README.md) · [简体中文](README.zh-CN.md)
+
+
 **CareerPilot Agent** is a personalized job-search agent built on top of OpenHarness.
 
 It helps users analyze job descriptions, compare resumes with target roles, rewrite project experience, generate interview preparation plans, and track job applications through a lightweight local workflow.
