@@ -1,6 +1,8 @@
 # CareerPilot Agent
 
-**CareerPilot Agent** is a personalized job-search agent built on top of OpenHarness. It helps users analyze job descriptions, compare resumes with target roles, rewrite project experience, generate interview preparation plans, and track job applications through a lightweight local workflow.
+**CareerPilot Agent** is a personalized job-search agent built on top of OpenHarness.
+
+It helps users analyze job descriptions, compare resumes with target roles, rewrite project experience, generate interview preparation plans, and track job applications through a lightweight local workflow.
 
 This project extends OpenHarness with a domain-specific career workflow, custom tools, markdown skills, local memory, structured reports, and automated tests.
 
@@ -282,11 +284,7 @@ CareerPilot tools return stable dictionaries and structured reports. This makes 
 
 ### Explainable matching
 
-The resume matcher uses an explainable scoring strategy based on:
-
-```text
-match_score = skill coverage + project evidence coverage + responsibility coverage
-```
+The resume matcher uses an explainable scoring strategy based on skill coverage, project evidence coverage, and responsibility coverage.
 
 The score is constrained to the 0-100 range.
 
