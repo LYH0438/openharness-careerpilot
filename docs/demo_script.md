@@ -27,6 +27,8 @@ Resume match report
 Project story extraction result
 3-day interview preparation plan
 Application tracker summary
+Raw structured outputs
+Human review notice
 Demo Talking Points
 
 CareerPilot is an end-to-end job-search workflow built on top of OpenHarness-style tool and skill design.
