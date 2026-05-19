@@ -1409,3 +1409,105 @@ Day 13 进入文档补齐阶段，重点是让项目更容易被回看、复盘�
 - `docs/known_issues.md`
 
 其中 `known_issues.md` 可以记录 Application Tracker 重复记录 warning 和当前 MVP 的边界。
+
+## 2026-05-19 Day 13
+
+### 今日目标
+
+补充 CareerPilot Agent 的开发文档和设计溯源记录，让项目不仅能运行，也能在后续复盘和面试中讲清楚架构、取舍、限制和演示流程。
+
+### 完成内容
+
+1. 新增英文架构文档：
+
+   - `docs/architecture.md`
+
+   该文档说明了 CareerPilot 的整体架构，包括 OpenHarness runtime layer、Skill layer、Tool layer、Adapter layer、Demo layer 和 Memory layer。
+
+2. 新增中文架构文档：
+
+   - `docs/architecture.zh-CN.md`
+
+   中文版本用于后续自己复盘和面试准备，内容与英文架构文档保持一致。
+
+3. 新增英文技术决策记录：
+
+   - `docs/decision_record.md`
+
+   记录了 MVP 阶段的关键技术决策，包括为什么基于 OpenHarness、为什么使用 deterministic tools、为什么使用 JSON memory、为什么先采用 adapter 集成方式等。
+
+4. 新增中文技术决策记录：
+
+   - `docs/decision_record.zh-CN.md`
+
+   中文版本方便后续回看，也方便整理面试回答。
+
+5. 新增英文已知问题文档：
+
+   - `docs/known_issues.md`
+
+   记录当前 MVP 的限制，例如 OpenHarness 集成仍然是轻量级、匹配分是启发式评分、没有 RAG 知识库、没有多 Agent 工作流等。
+
+6. 新增中文已知问题文档：
+
+   - `docs/known_issues.zh-CN.md`
+
+   中文版本用于明确当前项目边界和后续增强方向。
+
+7. 重写英文演示脚本：
+
+   - `docs/demo_script.md`
+
+   将原有简单演示说明升级为正式 demo script，包含演示目标、演示步骤、两分钟讲解稿、五分钟讲解结构和常见面试问题。
+
+8. 新增中文演示脚本：
+
+   - `docs/demo_script.zh-CN.md`
+
+   中文版本用于自己练习演示和面试讲解。
+
+### 技术决策
+
+1. Day 13 不新增功能代码，重点补齐文档体系。
+2. 架构文档明确说明当前 CareerPilot 是 OpenHarness 之上的垂直领域扩展，而不是重写 OpenHarness core。
+3. 决策记录明确当前 MVP 使用 deterministic tools 的原因：稳定、可测试、可解释。
+4. 已知问题文档主动说明当前限制，避免项目被误解为已经完成生产级集成。
+5. Demo script 同时提供英文和中文版本，方便 GitHub 展示和个人复盘。
+
+### 验证结果
+
+运行 CareerPilot 测试：
+
+    python -m pytest -q tests/careerpilot
+
+结果：
+
+    21 passed
+
+说明 Day 13 的文档修改没有影响现有功能和测试。
+
+### 当前项目状态
+
+新增或修改的文档包括：
+
+    docs/architecture.md
+    docs/architecture.zh-CN.md
+    docs/decision_record.md
+    docs/decision_record.zh-CN.md
+    docs/demo_script.md
+    docs/demo_script.zh-CN.md
+    docs/known_issues.md
+    docs/known_issues.zh-CN.md
+    docs/dev_log.md
+
+### 明日计划
+
+Day 14 将进入最终整理与演示准备阶段，重点包括：
+
+1. 清理代码和无用文件。
+2. 跑完整 demo。
+3. 跑完整测试。
+4. 更新 README 中的文档链接。
+5. 准备 2 分钟演示脚本。
+6. 准备简历项目描述。
+7. 准备 v0.1-careerpilot-mvp tag。
