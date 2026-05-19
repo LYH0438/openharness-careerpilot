@@ -1086,3 +1086,82 @@ Day 9 主要完成了 CareerPilot 的工程稳定性验证。当前 `tests/caree
 - 开始 Day 10：README 第一版。
 - 在 README 中补充项目定位、核心功能、架构图、快速开始、demo 命令、测试命令和后续路线图。
 - 将 CareerPilot 包装成一个招聘方可以快速理解的 OpenHarness 垂直场景智能体项目。
+## 2026-05-19 Day 11
+
+### 今日目标
+- 优化 CareerPilot 输出质量，让报告更像真实求职工具，而不是模板生成器。
+- 优化 Project Story Extractor 的中英文简历 bullet，使其更接近 STAR / XYZ 表达。
+- 优化 Resume Matcher 的缺口建议和简历改写建议，使输出更具体、可执行。
+- 优化 demo report 的 Markdown 展示格式，减少原始 JSON 对阅读体验的影响。
+
+### 完成内容
+- 优化了 `careerpilot/tools/project_story_extractor.py`：
+  - 调整技术栈排序逻辑，使 `OpenHarness`、`Python`、`Pydantic`、`Agent`、`Skill`、`Memory` 等核心技术优先展示。
+  - 改进中文简历 bullet，使其包含动作、技术、结构化输出和结果价值。
+  - 改进英文简历 bullet，使其更适合放入英文简历或面试材料。
+  - 修复了 `_build_resume_bullets_en` 重复定义导致新版英文 bullet 被旧逻辑覆盖的问题。
+
+- 优化了 `careerpilot/tools/resume_matcher.py`：
+  - 增强 `weak_evidence` 输出，使其能指出缺少量化结果、缺少核心技能证据、缺少岗位职责映射等问题。
+  - 增强 `rewrite_suggestions` 输出，使其包含 Project Experience、Skills / Keywords、Gap Fix、Impact Metrics 等具体建议。
+  - 将简历建议从泛泛描述改为更接近真实求职场景的可执行建议。
+  - 保持原有 `ResumeMatchOutput` 结构不变，避免破坏现有测试和 demo workflow。
+
+- 优化了 `careerpilot/demo.py`：
+  - 改进 `format_item` 和 `format_list` 的 Markdown 渲染逻辑。
+  - 将 `rewrite_suggestions` 从原始 JSON 行改成更易读的 Markdown 子项。
+  - 将 `Application Tracker Summary` 从原始 JSON 行改成公司、岗位、状态、匹配分、下一步动作和备注的展示格式。
+
+- 重新生成了示例输出：
+  - `examples/careerpilot/output_project_bullets.md`
+  - `examples/careerpilot/demo_report.md`
+
+### 验证结果
+- Project Story Extractor 测试通过：3 passed in 0.02s
+- Resume Matcher 测试通过：2 passed in 0.02s
+- CareerPilot 全量测试通过：18 passed in 0.05s
+
+### 输出质量改进
+- `output_project_bullets.md` 现在包含更清晰的中英文简历 bullet：
+  - 中文 bullet 强调 OpenHarness、Agent、Skill、Memory、结构化输出和可测试模块。
+  - 英文 bullet 强调 project story extraction、structured schema、deterministic keyword extraction 和 testable modules。
+
+- `demo_report.md` 现在更适合展示：
+  - JD Analysis、Resume Match、Project Story、Interview Plan 和 Application Tracker 形成完整闭环。
+  - Rewrite Suggestions 已经从 JSON 改为可读 Markdown。
+  - Application Tracker Summary 已经从 JSON 改为简洁状态摘要。
+  - Human Review Notice 保留，强调简历建议需要人工审核，避免生成内容被直接当作事实使用。
+
+### 技术决策
+- 继续保持规则化、确定性输出，而不是引入不稳定的自由生成逻辑。
+- 优先提升 demo report 的可读性和简历 bullet 的可复用性。
+- 不改变已有输入输出 schema，保证测试和后续 OpenHarness workflow 集成稳定。
+- 将“输出质量优化”控制在工具层和 demo 渲染层，避免影响 Application Tracker 等已稳定模块。
+
+### 遇到问题
+- `project_story_extractor.py` 中存在重复定义的 `_build_resume_bullets_en`，导致前一次优化没有完全生效。
+- 初版英文 bullet 中混入中文 architecture highlight，导致英文输出不自然。
+- 初版 demo report 中 `rewrite_suggestions` 和 application records 以原始 JSON 形式展示，不适合 README 或面试演示截图。
+
+### 解决方式
+- 删除重复的英文 bullet 函数定义。
+- 将第三条中英文 bullet 改为固定的、自然的 Tool abstraction 表达。
+- 在 `demo.py` 中针对 rewrite suggestion 和 application record 增加 Markdown 渲染逻辑。
+- 重新生成 demo report 并运行全量测试确认没有回归。
+
+### 明日计划
+- Day 12：增加或强化 3 天 / 7 天面试准备计划能力。
+- 让面试计划与 JD 分析、简历缺口、弱证据更加相关。
+- 考虑新增独立的 `interview_plan_generator.py`，或者在现有 demo flow 中增强 interview preparation 输出。
+- 继续保持可测试、可解释、可展示的实现方式。
+
+### 可复用材料
+- 中文简历 bullet 草稿：
+  - 基于 OpenHarness、Python、Pydantic、Agent 构建面向求职场景的 CareerPilot Agent，扩展 JD 分析、简历匹配、项目经历提炼和投递状态追踪工具，实现从岗位分析到面试准备的端到端自动化闭环。
+  - 设计结构化输出 schema 和规则化生成逻辑，将岗位关键词、能力缺口、项目亮点和面试准备项转化为可测试、可复用的求职报告，提升输出稳定性和面试展示价值。
+  - 优化 demo report 的 Markdown 渲染和人审提示机制，使智能体输出不仅可被程序消费，也能直接用于 README 展示、简历微调和面试复盘。
+
+- 英文简历 bullet 草稿：
+  - Built CareerPilot Agent on top of OpenHarness with custom tools for JD analysis, resume matching, project story extraction, and application tracking, enabling an end-to-end job-search workflow from role analysis to interview preparation.
+  - Designed structured output schemas and deterministic generation logic to convert job requirements, skill gaps, project highlights, and interview topics into testable and reusable career reports.
+  - Improved Markdown report rendering and human-review safeguards, making agent outputs suitable for README demos, resume tailoring, and interview preparation workflows.

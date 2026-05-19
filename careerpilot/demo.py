@@ -34,7 +34,27 @@ def to_dict(value: Any) -> Dict[str, Any]:
 
 def format_item(item: Any) -> str:
     if isinstance(item, dict):
+        # Render common structured objects as readable Markdown instead of raw JSON.
+        if {"section", "before", "after"}.issubset(item.keys()):
+            return (
+                f"**{item.get('section', 'Suggestion')}**\n"
+                f"  - Before: {item.get('before', 'N/A')}\n"
+                f"  - After: {item.get('after', 'N/A')}"
+            )
+
+        if {"company", "role", "status", "match_score", "next_action"}.issubset(item.keys()):
+            notes = item.get("notes", [])
+            notes_text = ", ".join(notes) if isinstance(notes, list) else str(notes)
+            return (
+                f"**{item.get('company', 'Unknown Company')} — {item.get('role', 'Unknown Role')}**\n"
+                f"  - Status: {item.get('status', 'unknown')}\n"
+                f"  - Match Score: {item.get('match_score', 'N/A')}\n"
+                f"  - Next Action: {item.get('next_action', 'N/A')}\n"
+                f"  - Notes: {notes_text or 'None'}"
+            )
+
         return json.dumps(item, ensure_ascii=False)
+
     return str(item)
 
 
@@ -43,7 +63,14 @@ def format_list(items: Any) -> str:
         return "- None"
 
     if isinstance(items, list):
-        return "\n".join(f"- {format_item(item)}" for item in items)
+        rendered_items = []
+        for item in items:
+            rendered = format_item(item)
+            if "\n" in rendered:
+                rendered_items.append(f"- {rendered}")
+            else:
+                rendered_items.append(f"- {rendered}")
+        return "\n".join(rendered_items)
 
     return f"- {format_item(items)}"
 

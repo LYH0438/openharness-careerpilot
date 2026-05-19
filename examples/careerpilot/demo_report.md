@@ -106,8 +106,9 @@ mid
 
 ## Weak Evidence
 
-- Resume lacks quantified impact or measurable results.
-- Resume does not clearly address responsibilities: 设计和维护后端服务, 开发和维护 API, 数据库设计与性能优化
+- Resume lacks quantified impact. Add measurable results such as latency reduction, API throughput, user scale, test coverage, or time saved.
+- Core skill evidence is missing for: TypeScript. Add truthful project evidence instead of only listing them in the skills section.
+- Resume does not clearly address responsibilities: 设计和维护后端服务, 开发和维护 API, 数据库设计与性能优化. Rewrite one project bullet to mirror these responsibilities.
 
 ## Resume Keywords to Add
 
@@ -121,7 +122,18 @@ mid
 
 ## Rewrite Suggestions
 
-- {"section": "Project Experience", "before": "Built a backend system.", "after": "Built a Backend Engineer-oriented backend service using Python, FastAPI, PostgreSQL, with clear ownership, technical decisions, and measurable impact."}
+- **Project Experience**
+  - Before: Built a backend system.
+  - After: Built a backend-focused service for Backend Engineer roles using Python, FastAPI, PostgreSQL, owning API design, data modeling, and implementation trade-offs; add one measurable result such as request latency, reliability, user scale, or development time saved.
+- **Skills / Keywords**
+  - Before: Listed general programming skills.
+  - After: Add targeted keywords such as TypeScript, 设计和维护后端服务, 开发和维护 API, 数据库设计与性能优化, but only when they are supported by real project or work experience.
+- **Gap Fix**
+  - Before: Missing JD requirements are not addressed.
+  - After: Create or rewrite one bullet to provide evidence for TypeScript; use the format: Built [feature] with [technology], solved [problem], and improved [metric/result].
+- **Impact Metrics**
+  - Before: Project bullets describe work without numbers.
+  - After: Add at least one quantified result, for example: reduced manual analysis time by X%, processed N records, supported N users, improved test coverage to X%, or shortened workflow time from A to B.
 
 ## Interview Preparation Topics
 
@@ -143,14 +155,14 @@ mid
 
 ## Tech Stack
 
+- OpenHarness
 - Python
 - Pydantic
-- pytest
-- OpenHarness
-- LLM
+- Agent
 - Tool Calling
+- Skill
+- Memory
 - CLI
-- JSON
 
 ## Architecture Highlights
 
@@ -162,15 +174,15 @@ mid
 
 ## Resume Bullets CN
 
-- 基于 Python、Pydantic、pytest、OpenHarness 构建面向 Backend Engineer 的项目经历提炼工具，将项目 README/说明文档转化为中英文简历 bullet、面试故事和潜在面试问题。
-- 设计结构化输出 schema，覆盖项目一句话总结、技术栈、架构亮点、简历表述和 STAR 面试故事，提升项目包装的一致性与可测试性。
-- 通过规则化关键词识别和模板化生成逻辑，降低生成结果不稳定风险，使输出能够直接进入端到端 demo 和单元测试流程。
+- 基于 OpenHarness、Python、Pydantic、Agent 构建面向 Backend Engineer 的项目经历提炼工具，将项目 README/说明文档结构化转化为中英文简历 bullet、STAR 面试故事和潜在面试问题，提升求职材料复用效率和表达一致性。
+- 设计覆盖项目一句话总结、技术栈、架构亮点、简历表述和面试故事的结构化输出 schema，通过稳定字段支持端到端 demo、单元测试和后续 OpenHarness workflow 编排。
+- 围绕自定义 Tool 抽象实现规则化关键词识别与模板化生成逻辑，将 JD 分析、简历匹配和项目经历提炼能力封装为可测试模块，降低自由生成带来的不稳定风险，使输出结果更适合简历微调、面试复盘和自动化测试。
 
 ## Resume Bullets EN
 
-- Built a project story extraction tool for Backend Engineer workflows using Python, Pydantic, pytest, OpenHarness, converting README-style project descriptions into resume bullets, interview stories, and likely interview questions.
-- Designed a structured output schema covering project summary, tech stack, architecture highlights, bilingual resume bullets, and STAR-style interview narratives.
-- Implemented deterministic keyword extraction and template-based generation to improve output stability, testability, and demo reliability.
+- Built a project story extraction tool for Backend Engineer workflows using OpenHarness, Python, Pydantic, Agent, transforming README-style project descriptions into bilingual resume bullets, STAR interview stories, and likely interview questions to improve reuse and consistency of job-search materials.
+- Designed a structured output schema covering project summary, tech stack, architecture highlights, resume-ready bullets, and interview narratives, enabling stable end-to-end demos, unit tests, and future OpenHarness workflow integration.
+- Implemented deterministic keyword extraction and template-based generation around custom tool abstractions, packaging JD analysis, resume matching, and project story extraction into testable modules while making outputs easier to review, test, and tailor for interviews.
 
 ## Interview Story
 
@@ -224,8 +236,16 @@ Deliverable:
 
 # 5. Application Tracker Summary
 
-- {"company": "Example AI", "role": "AI Agent Engineer", "jd_source": "examples/careerpilot/sample_jd_backend.md", "status": "applied", "match_score": 78, "next_action": "prepare backend system design interview answers", "created_at": "2026-05-17", "updated_at": "2026-05-17", "notes": ["需要补充 MCP 和多 Agent 相关表述", "已完成第一版简历投递"]}
-- {"company": "Example AI", "role": "Backend Engineer", "jd_source": "examples/careerpilot/sample_jd_backend.md", "status": "preparing", "match_score": 68, "next_action": "review generated demo report and rewrite project bullets", "created_at": "2026-05-17", "updated_at": "2026-05-17", "notes": ["Generated from CareerPilot Day 7 demo flow."]}
+- **Example AI — AI Agent Engineer**
+  - Status: applied
+  - Match Score: 78
+  - Next Action: prepare backend system design interview answers
+  - Notes: 需要补充 MCP 和多 Agent 相关表述, 已完成第一版简历投递
+- **Example AI — Backend Engineer**
+  - Status: preparing
+  - Match Score: 68
+  - Next Action: review generated demo report and rewrite project bullets
+  - Notes: Generated from CareerPilot Day 7 demo flow.
 
 ---
 
@@ -313,8 +333,9 @@ Deliverable:
     "TypeScript"
   ],
   "weak_evidence": [
-    "Resume lacks quantified impact or measurable results.",
-    "Resume does not clearly address responsibilities: 设计和维护后端服务, 开发和维护 API, 数据库设计与性能优化"
+    "Resume lacks quantified impact. Add measurable results such as latency reduction, API throughput, user scale, test coverage, or time saved.",
+    "Core skill evidence is missing for: TypeScript. Add truthful project evidence instead of only listing them in the skills section.",
+    "Resume does not clearly address responsibilities: 设计和维护后端服务, 开发和维护 API, 数据库设计与性能优化. Rewrite one project bullet to mirror these responsibilities."
   ],
   "resume_keywords_to_add": [
     "TypeScript",
@@ -329,7 +350,22 @@ Deliverable:
     {
       "section": "Project Experience",
       "before": "Built a backend system.",
-      "after": "Built a Backend Engineer-oriented backend service using Python, FastAPI, PostgreSQL, with clear ownership, technical decisions, and measurable impact."
+      "after": "Built a backend-focused service for Backend Engineer roles using Python, FastAPI, PostgreSQL, owning API design, data modeling, and implementation trade-offs; add one measurable result such as request latency, reliability, user scale, or development time saved."
+    },
+    {
+      "section": "Skills / Keywords",
+      "before": "Listed general programming skills.",
+      "after": "Add targeted keywords such as TypeScript, 设计和维护后端服务, 开发和维护 API, 数据库设计与性能优化, but only when they are supported by real project or work experience."
+    },
+    {
+      "section": "Gap Fix",
+      "before": "Missing JD requirements are not addressed.",
+      "after": "Create or rewrite one bullet to provide evidence for TypeScript; use the format: Built [feature] with [technology], solved [problem], and improved [metric/result]."
+    },
+    {
+      "section": "Impact Metrics",
+      "before": "Project bullets describe work without numbers.",
+      "after": "Add at least one quantified result, for example: reduced manual analysis time by X%, processed N records, supported N users, improved test coverage to X%, or shortened workflow time from A to B."
     }
   ],
   "interview_preparation_topics": [
@@ -348,14 +384,14 @@ Deliverable:
 {
   "one_liner": "基于 OpenHarness 构建的面向 Backend Engineer 求职流程智能体",
   "tech_stack": [
+    "OpenHarness",
     "Python",
     "Pydantic",
-    "pytest",
-    "OpenHarness",
-    "LLM",
+    "Agent",
     "Tool Calling",
-    "CLI",
-    "JSON"
+    "Skill",
+    "Memory",
+    "CLI"
   ],
   "architecture_highlights": [
     "自定义 Tool 抽象，用于封装 JD 分析、简历匹配和项目经历提炼能力",
@@ -365,14 +401,14 @@ Deliverable:
     "使用测试覆盖核心工具逻辑，提升输出稳定性"
   ],
   "resume_bullets_cn": [
-    "基于 Python、Pydantic、pytest、OpenHarness 构建面向 Backend Engineer 的项目经历提炼工具，将项目 README/说明文档转化为中英文简历 bullet、面试故事和潜在面试问题。",
-    "设计结构化输出 schema，覆盖项目一句话总结、技术栈、架构亮点、简历表述和 STAR 面试故事，提升项目包装的一致性与可测试性。",
-    "通过规则化关键词识别和模板化生成逻辑，降低生成结果不稳定风险，使输出能够直接进入端到端 demo 和单元测试流程。"
+    "基于 OpenHarness、Python、Pydantic、Agent 构建面向 Backend Engineer 的项目经历提炼工具，将项目 README/说明文档结构化转化为中英文简历 bullet、STAR 面试故事和潜在面试问题，提升求职材料复用效率和表达一致性。",
+    "设计覆盖项目一句话总结、技术栈、架构亮点、简历表述和面试故事的结构化输出 schema，通过稳定字段支持端到端 demo、单元测试和后续 OpenHarness workflow 编排。",
+    "围绕自定义 Tool 抽象实现规则化关键词识别与模板化生成逻辑，将 JD 分析、简历匹配和项目经历提炼能力封装为可测试模块，降低自由生成带来的不稳定风险，使输出结果更适合简历微调、面试复盘和自动化测试。"
   ],
   "resume_bullets_en": [
-    "Built a project story extraction tool for Backend Engineer workflows using Python, Pydantic, pytest, OpenHarness, converting README-style project descriptions into resume bullets, interview stories, and likely interview questions.",
-    "Designed a structured output schema covering project summary, tech stack, architecture highlights, bilingual resume bullets, and STAR-style interview narratives.",
-    "Implemented deterministic keyword extraction and template-based generation to improve output stability, testability, and demo reliability."
+    "Built a project story extraction tool for Backend Engineer workflows using OpenHarness, Python, Pydantic, Agent, transforming README-style project descriptions into bilingual resume bullets, STAR interview stories, and likely interview questions to improve reuse and consistency of job-search materials.",
+    "Designed a structured output schema covering project summary, tech stack, architecture highlights, resume-ready bullets, and interview narratives, enabling stable end-to-end demos, unit tests, and future OpenHarness workflow integration.",
+    "Implemented deterministic keyword extraction and template-based generation around custom tool abstractions, packaging JD analysis, resume matching, and project story extraction into testable modules while making outputs easier to review, test, and tailor for interviews."
   ],
   "interview_story": {
     "problem": "求职过程中，项目经历往往需要针对不同岗位重新组织表达，手动改写耗时且容易遗漏技术亮点。",

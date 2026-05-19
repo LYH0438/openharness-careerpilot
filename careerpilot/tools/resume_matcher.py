@@ -26,7 +26,11 @@ class ResumeMatchOutput(BaseModel):
 
 
 def _normalize(text: str) -> str:
-    return text.lower()
+    return text.lower().replace("-", " ").replace("_", " ")
+
+
+def _dedupe(items: list[str]) -> list[str]:
+    return list(dict.fromkeys(item for item in items if item))
 
 
 def _coverage(items: list[str], resume_text: str) -> tuple[list[str], list[str], float]:
@@ -39,6 +43,94 @@ def _coverage(items: list[str], resume_text: str) -> tuple[list[str], list[str],
     score = len(matched) / len(items)
 
     return matched, missing, score
+
+
+def _build_weak_evidence(
+    project_score: float,
+    resume_text: str,
+    missing_core_skills: list[str],
+    missing_responsibilities: list[str],
+) -> list[str]:
+    weak_evidence: list[str] = []
+
+    if project_score < 0.5:
+        weak_evidence.append(
+            "Project experience lacks concrete implementation evidence. Add bullets that mention what you built, which technology you used, and what result it produced."
+        )
+
+    if not any(char.isdigit() for char in resume_text):
+        weak_evidence.append(
+            "Resume lacks quantified impact. Add measurable results such as latency reduction, API throughput, user scale, test coverage, or time saved."
+        )
+
+    if missing_core_skills:
+        weak_evidence.append(
+            "Core skill evidence is missing for: "
+            + ", ".join(missing_core_skills[:4])
+            + ". Add truthful project evidence instead of only listing them in the skills section."
+        )
+
+    if missing_responsibilities:
+        weak_evidence.append(
+            "Resume does not clearly address responsibilities: "
+            + ", ".join(missing_responsibilities[:3])
+            + ". Rewrite one project bullet to mirror these responsibilities."
+        )
+
+    return weak_evidence
+
+
+def _build_rewrite_suggestions(
+    target_role: str,
+    matched_skills: list[str],
+    missing_skills: list[str],
+    resume_keywords_to_add: list[str],
+    resume_text: str,
+) -> list[RewriteSuggestion]:
+    skill_phrase = ", ".join(matched_skills[:3]) or "relevant backend technologies"
+    missing_phrase = ", ".join(missing_skills[:3]) or "the most important JD keywords"
+    keyword_phrase = ", ".join(resume_keywords_to_add[:4]) or "role-specific keywords"
+
+    suggestions = [
+        RewriteSuggestion(
+            section="Project Experience",
+            before="Built a backend system.",
+            after=(
+                f"Built a backend-focused service for {target_role} roles using {skill_phrase}, "
+                "owning API design, data modeling, and implementation trade-offs; "
+                "add one measurable result such as request latency, reliability, user scale, or development time saved."
+            ),
+        ),
+        RewriteSuggestion(
+            section="Skills / Keywords",
+            before="Listed general programming skills.",
+            after=(
+                f"Add targeted keywords such as {keyword_phrase}, but only when they are supported by real project or work experience."
+            ),
+        ),
+        RewriteSuggestion(
+            section="Gap Fix",
+            before="Missing JD requirements are not addressed.",
+            after=(
+                f"Create or rewrite one bullet to provide evidence for {missing_phrase}; "
+                "use the format: Built [feature] with [technology], solved [problem], and improved [metric/result]."
+            ),
+        ),
+    ]
+
+    if not any(char.isdigit() for char in resume_text):
+        suggestions.append(
+            RewriteSuggestion(
+                section="Impact Metrics",
+                before="Project bullets describe work without numbers.",
+                after=(
+                    "Add at least one quantified result, for example: reduced manual analysis time by X%, "
+                    "processed N records, supported N users, improved test coverage to X%, or shortened workflow time from A to B."
+                ),
+            )
+        )
+
+    return suggestions
 
 
 def match_resume(data: ResumeMatchInput) -> ResumeMatchOutput:
@@ -54,6 +146,7 @@ def match_resume(data: ResumeMatchInput) -> ResumeMatchOutput:
     matched_skills, missing_core_skills, skill_score = _coverage(
         core_skills, data.resume_text
     )
+
     matched_responsibilities, missing_responsibilities, responsibility_score = _coverage(
         responsibilities, data.resume_text
     )
@@ -70,6 +163,7 @@ def match_resume(data: ResumeMatchInput) -> ResumeMatchOutput:
         "database",
         "service",
     ]
+
     _, _, project_score = _coverage(project_evidence_terms, data.resume_text)
 
     raw_score = (
@@ -79,45 +173,43 @@ def match_resume(data: ResumeMatchInput) -> ResumeMatchOutput:
     )
     match_score = max(0, min(100, round(raw_score * 100)))
 
-    missing_skills = missing_core_skills + [
-        skill for skill in nice_to_have if _normalize(skill) not in _normalize(data.resume_text)
+    missing_nice_to_have = [
+        skill for skill in nice_to_have
+        if _normalize(skill) not in _normalize(data.resume_text)
     ]
 
-    weak_evidence = []
-    if project_score < 0.5:
-        weak_evidence.append("Project experience lacks concrete implementation evidence.")
-    if not any(char.isdigit() for char in data.resume_text):
-        weak_evidence.append("Resume lacks quantified impact or measurable results.")
-    if missing_responsibilities:
-        weak_evidence.append(
-            "Resume does not clearly address responsibilities: "
-            + ", ".join(missing_responsibilities[:3])
-        )
+    missing_skills = _dedupe(missing_core_skills + missing_nice_to_have)
 
     resume_keywords_to_add = [
         keyword for keyword in keywords
         if _normalize(keyword) not in _normalize(data.resume_text)
     ]
 
-    rewrite_suggestions = [
-        RewriteSuggestion(
-            section="Project Experience",
-            before="Built a backend system.",
-            after=(
-                f"Built a {data.target_role}-oriented backend service using "
-                f"{', '.join(matched_skills[:3]) or 'relevant technologies'}, "
-                "with clear ownership, technical decisions, and measurable impact."
-            ),
-        )
-    ]
+    weak_evidence = _build_weak_evidence(
+        project_score=project_score,
+        resume_text=data.resume_text,
+        missing_core_skills=missing_core_skills,
+        missing_responsibilities=missing_responsibilities,
+    )
 
-    interview_topics = list(dict.fromkeys(
-        interview_focus + missing_skills[:3] + missing_responsibilities[:2]
-    ))
+    rewrite_suggestions = _build_rewrite_suggestions(
+        target_role=data.target_role,
+        matched_skills=matched_skills,
+        missing_skills=missing_skills,
+        resume_keywords_to_add=resume_keywords_to_add,
+        resume_text=data.resume_text,
+    )
+
+    interview_topics = _dedupe(
+        interview_focus
+        + missing_skills[:3]
+        + missing_responsibilities[:2]
+        + resume_keywords_to_add[:2]
+    )
 
     return ResumeMatchOutput(
         match_score=match_score,
-        strong_matches=matched_skills + matched_responsibilities,
+        strong_matches=_dedupe(matched_skills + matched_responsibilities),
         missing_skills=missing_skills,
         weak_evidence=weak_evidence,
         resume_keywords_to_add=resume_keywords_to_add,

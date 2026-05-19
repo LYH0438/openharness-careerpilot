@@ -58,25 +58,45 @@ def _detect_tech_stack(text: str) -> List[str]:
     found = []
 
     aliases = {
+        "openharness": "OpenHarness",
         "python": "Python",
         "pydantic": "Pydantic",
-        "pytest": "pytest",
-        "openharness": "OpenHarness",
-        "llm": "LLM",
+        "agent": "Agent",
         "tool calling": "Tool Calling",
         "tool-use": "Tool Calling",
+        "skill": "Skill",
+        "memory": "Memory",
         "cli": "CLI",
         "json": "JSON",
         "markdown": "Markdown",
+        "pytest": "pytest",
+        "llm": "LLM",
         "fastapi": "FastAPI",
         "postgresql": "PostgreSQL",
         "docker": "Docker",
         "rag": "RAG",
         "mcp": "MCP",
-        "agent": "Agent",
-        "memory": "Memory",
-        "skill": "Skill",
     }
+
+    priority = [
+        "OpenHarness",
+        "Python",
+        "Pydantic",
+        "Agent",
+        "Tool Calling",
+        "Skill",
+        "Memory",
+        "CLI",
+        "JSON",
+        "Markdown",
+        "pytest",
+        "LLM",
+        "FastAPI",
+        "PostgreSQL",
+        "Docker",
+        "RAG",
+        "MCP",
+    ]
 
     for key, value in aliases.items():
         if key in lowered and value not in found:
@@ -85,7 +105,7 @@ def _detect_tech_stack(text: str) -> List[str]:
     if not found:
         found = ["Python", "Markdown", "LLM"]
 
-    return found[:8]
+    return sorted(found, key=lambda item: priority.index(item) if item in priority else 999)[:8]
 
 
 def _detect_architecture_highlights(text: str) -> List[str]:
@@ -132,9 +152,20 @@ def _build_resume_bullets_cn(
     main_tech = "、".join(tech_stack[:4])
 
     return [
-        f"基于 {main_tech} 构建面向 {target_role} 的项目经历提炼工具，将项目 README/说明文档转化为中英文简历 bullet、面试故事和潜在面试问题。",
-        f"设计结构化输出 schema，覆盖项目一句话总结、技术栈、架构亮点、简历表述和 STAR 面试故事，提升项目包装的一致性与可测试性。",
-        f"通过规则化关键词识别和模板化生成逻辑，降低生成结果不稳定风险，使输出能够直接进入端到端 demo 和单元测试流程。",
+        (
+            f"基于 {main_tech} 构建面向 {target_role} 的项目经历提炼工具，"
+            f"将项目 README/说明文档结构化转化为中英文简历 bullet、STAR 面试故事和潜在面试问题，"
+            f"提升求职材料复用效率和表达一致性。"
+        ),
+        (
+            f"设计覆盖项目一句话总结、技术栈、架构亮点、简历表述和面试故事的结构化输出 schema，"
+            f"通过稳定字段支持端到端 demo、单元测试和后续 OpenHarness workflow 编排。"
+        ),
+        (
+            "围绕自定义 Tool 抽象实现规则化关键词识别与模板化生成逻辑，"
+            "将 JD 分析、简历匹配和项目经历提炼能力封装为可测试模块，"
+            "降低自由生成带来的不稳定风险，使输出结果更适合简历微调、面试复盘和自动化测试。"
+        ),
     ]
 
 
@@ -146,11 +177,21 @@ def _build_resume_bullets_en(
     main_tech = ", ".join(tech_stack[:4])
 
     return [
-        f"Built a project story extraction tool for {target_role} workflows using {main_tech}, converting README-style project descriptions into resume bullets, interview stories, and likely interview questions.",
-        "Designed a structured output schema covering project summary, tech stack, architecture highlights, bilingual resume bullets, and STAR-style interview narratives.",
-        "Implemented deterministic keyword extraction and template-based generation to improve output stability, testability, and demo reliability.",
+        (
+            f"Built a project story extraction tool for {target_role} workflows using {main_tech}, "
+            f"transforming README-style project descriptions into bilingual resume bullets, STAR interview stories, "
+            f"and likely interview questions to improve reuse and consistency of job-search materials."
+        ),
+        (
+            "Designed a structured output schema covering project summary, tech stack, architecture highlights, "
+            "resume-ready bullets, and interview narratives, enabling stable end-to-end demos, unit tests, "
+            "and future OpenHarness workflow integration."
+        ),
+        (
+            "Implemented deterministic keyword extraction and template-based generation around custom tool abstractions, "
+            "packaging JD analysis, resume matching, and project story extraction into testable modules while making outputs easier to review, test, and tailor for interviews."
+        ),
     ]
-
 
 def _build_interview_story(target_role: str) -> InterviewStory:
     return InterviewStory(
