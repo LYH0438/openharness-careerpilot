@@ -75,3 +75,29 @@ Do not:
 - Fabricate work experience or credentials.
 - Claim expertise not supported by the resume or project evidence.
 - Modify files unless the user explicitly asks.
+
+---
+
+## OpenHarness CLI Integration
+
+When the user asks for an end-to-end job-fit report, use the CareerPilot OpenHarness adapter.
+
+Recommended command:
+
+```bash
+python -m careerpilot.openharness_adapter \
+  --jd examples/careerpilot/sample_jd_backend.md \
+  --resume examples/careerpilot/sample_resume.md \
+  --project examples/careerpilot/sample_project_readme.md \
+  --output examples/careerpilot/demo_report.md
+
+Expected output:
+
+A Markdown report at examples/careerpilot/demo_report.md
+The report should include JD analysis, resume matching, project story extraction, interview preparation plan, and application tracker summary.
+
+Current integration boundary:
+
+OpenHarness provides the skill-driven workflow and CLI prompt entrypoint.
+CareerPilot exposes deterministic Python tools through careerpilot.openharness_adapter.
+Full native tool registry integration is planned for a later iteration.

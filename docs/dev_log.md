@@ -969,3 +969,43 @@ python -m careerpilot.demo \
 - 研究 OpenHarness skill/tool 接入方式
 - 让 CareerPilot 不只是独立 Python demo，而是能体现 OpenHarness workflow 扩展
 
+
+## 2026-05-19 Day 8
+
+### 今日目标
+- 接入 OpenHarness 运行方式
+- 让 CareerPilot 不只是独立 Python demo，而是具备 OpenHarness-facing workflow 入口
+- 记录当前集成边界和后续 native tool registry 计划
+
+### 完成内容
+- 新增 `careerpilot/openharness_adapter.py`
+- 为 CareerPilot end-to-end workflow 提供稳定 Python adapter
+- 更新 `careerpilot/skills/career-coach.md`，补充 OpenHarness CLI 集成说明
+- 新增 `docs/openharness_integration.md`
+- 运行 `uv run oh --dry-run -p ...` 验证 OpenHarness dry-run 可用
+- 验证 `python -m careerpilot.openharness_adapter` 可以生成 demo report
+
+### 验证结果
+- OpenHarness dry-run readiness: ready
+- Auth validation: configured
+- API client: ok
+- Static discovery succeeded
+- Built-in tools discovered: 39
+- Skills discovered: 10
+- CareerPilot adapter 可以生成 `examples/careerpilot/demo_report.md`
+- `python -m py_compile careerpilot/openharness_adapter.py` 通过
+- `python -m pytest -q tests/careerpilot` 通过
+
+### 技术决策
+- Day 8 采用轻量 adapter 方案，而不是直接修改 OpenHarness core
+- 保持 CareerPilot 工具为 deterministic Python modules，降低 demo 风险
+- 通过 Skill + Adapter + CLI 体现当前 OpenHarness 集成边界
+- 将 native OpenHarness tool registry registration 作为后续增强任务
+
+### 遇到问题
+- OpenHarness dry-run 成功，但 likely skill match 中没有直接高亮 `career-coach`
+- 当前版本先记录为 lightweight integration，后续再研究原生 tool registry 或 plugin 接入
+
+### 明日计划
+- Day 9 完善测试与异常处理
+- 覆盖空输入、文件不存在、JSON 异常、重复投递记录等情况
