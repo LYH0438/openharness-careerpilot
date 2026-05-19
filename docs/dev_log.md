@@ -1511,3 +1511,70 @@ Day 14 将进入最终整理与演示准备阶段，重点包括：
 5. 准备 2 分钟演示脚本。
 6. 准备简历项目描述。
 7. 准备 v0.1-careerpilot-mvp tag。
+
+## 2026-05-19 Day 14
+
+### 今日目标
+
+- 完成 CareerPilot v0.1 MVP 的最终整理与演示准备。
+- 重新验证端到端 demo、测试、OpenHarness dry-run 和核心文档。
+- 为后续打 tag 和发布 v0.1 做准备。
+
+### 完成内容
+
+- 确认当前分支为 `feature/careerpilot-agent`，并且本地与远程 `origin/feature/careerpilot-agent` 保持同步。
+- 重新运行端到端 demo，成功生成 `examples/careerpilot/demo_report.md`。
+- 验证 demo report 覆盖 JD 分析、简历匹配、项目经历提炼和 7 天面试准备计划。
+- 运行 CareerPilot 专属测试，`tests/careerpilot` 共 21 个测试全部通过。
+- 运行 OpenHarness dry-run 检查，确认配置、prompt assembly、API client、skill/tool discovery 等静态检查处于 ready 状态。
+- 检查 `careerpilot/skills` 下的三个 Markdown Skill 文件：`career-coach.md`、`resume-rewriter.md`、`interview-prep.md`。
+- 检查 README 是否覆盖项目定位、架构、Quick Start、Demo、OpenHarness dry-run、测试说明、Roadmap 和简历描述。
+- 检查 `docs/openharness_integration.md`，确认当前 MVP 的 OpenHarness 集成边界已经写清楚。
+
+### 验证命令
+
+    python -m careerpilot.demo \
+      --jd examples/careerpilot/sample_jd_backend.md \
+      --resume examples/careerpilot/sample_resume.md \
+      --project examples/careerpilot/sample_project_readme.md \
+      --output examples/careerpilot/demo_report.md \
+      --target-role "Backend Engineer" \
+      --company "Example AI" \
+      --prep-days 7 \
+      --daily-hours 2
+
+    python -m pytest -q tests/careerpilot
+
+    uv run oh --dry-run -p "Use career-coach skill. Analyze examples/careerpilot/sample_jd_backend.md and compare it with examples/careerpilot/sample_resume.md. Generate a job-fit report using CareerPilot."
+
+### 验证结果
+
+- Demo report generated: `examples/careerpilot/demo_report.md`
+- CareerPilot tests: 21 passed
+- OpenHarness dry-run readiness: ready
+- Git working tree: clean before Day14 log update
+
+### 技术决策
+
+- v0.1 继续保持 lightweight integration：OpenHarness 负责 CLI prompt entrypoint、skill/workflow context 和 dry-run readiness validation；CareerPilot 通过 Python 模块和 `openharness_adapter` 暴露稳定的端到端 workflow。
+- 暂不在 v0.1 中强行实现 native OpenHarness tool registry registration，避免在 MVP 收尾阶段引入不稳定改动。
+- README 和集成文档中明确说明当前边界，避免把 dry-run 集成夸大为完整原生工具注册。
+
+### 遇到问题
+
+- 重新运行 demo 时出现 `Application already exists: Example AI - Backend Engineer` warning。
+- 该 warning 来自 Application Tracker 的重复记录保护，不影响 demo report 生成，也不影响测试结果。
+- 后续可以考虑在 demo 命令中增加 `--skip-tracker` 或 `--update-existing-application` 参数，让重复运行 demo 时输出更干净。
+
+### 当前状态
+
+- CareerPilot v0.1 MVP 已经具备可演示状态。
+- 核心功能、测试、文档和 OpenHarness dry-run 均已验证。
+- 下一步是准备 release note、2 分钟演示稿、简历项目描述，并打 tag：`v0.1-careerpilot-mvp`。
+
+### 明日计划
+
+- Day 15 作为 buffer day，修复最后发现的问题。
+- 准备 GitHub release note。
+- 根据需要补充 demo 截图或录屏。
+- 发布 v0.1 MVP。
