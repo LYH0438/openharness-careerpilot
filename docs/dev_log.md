@@ -1578,3 +1578,74 @@ Day 14 将进入最终整理与演示准备阶段，重点包括：
 - 准备 GitHub release note。
 - 根据需要补充 demo 截图或录屏。
 - 发布 v0.1 MVP。
+
+## 2026-05-19 Day 15 Final Release
+
+### 今日目标
+
+- 完成 CareerPilot Agent v0.1 半月版最终发布。
+- 确认测试、demo、tag、release note 和 GitHub Release 状态。
+- 将项目整理为可演示、可复盘、可写进简历的 MVP 版本。
+
+### 完成内容
+
+- 重新运行 CareerPilot 专属测试，结果为 21 passed。
+- 重新运行端到端 demo，成功生成 `examples/careerpilot/demo_report.md`。
+- 确认当前开发分支为 `feature/careerpilot-agent`。
+- 确认远程分支已推送到 GitHub。
+- 确认版本 tag `v0.1-careerpilot-mvp` 已存在。
+- 新增根目录 `RELEASE_NOTES.md`，用于 GitHub Release 页面展示。
+- 在 GitHub 发布 v0.1 release。
+
+### GitHub Release
+
+Release 页面：
+
+https://github.com/LYH0438/openharness-careerpilot/releases
+
+### 当前 v0.1 状态
+
+CareerPilot Agent v0.1 已完成半月版 MVP 闭环：
+
+- JD Analyzer：岗位描述结构化分析。
+- Resume Matcher：简历与岗位匹配分析。
+- Project Story Extractor：项目经历提炼与中英文 bullet 生成。
+- Interview Plan Generator：3 天 / 7 天面试准备计划。
+- Application Tracker：本地 JSON 投递记录管理。
+- Career Skills：通过 Markdown Skill 固化求职工作流。
+- OpenHarness Integration：完成 dry-run、skill-guided workflow 和轻量 adapter 集成。
+- Demo Report：一条命令生成端到端求职分析报告。
+- Tests：核心工具测试通过。
+
+### Known Issues
+
+- 当前 OpenHarness 集成仍以 dry-run、skill 和 adapter 为主，尚未完成深度原生 tool registry 接入。
+- 匹配分是启发式评分，重点是可解释和可测试，尚未做 benchmark。
+- 简历生成内容仍需要人工审核，不能自动投递或夸大经历。
+- 当前 memory 使用本地 JSON，不适合多用户或生产并发场景。
+- IM 渠道、RAG、多 Agent、benchmark 和安全策略计划放入 v0.2。
+
+### 阶段总结
+
+v0.1 的目标不是做一个完整求职平台，而是基于 OpenHarness 做出一个可以运行、可以演示、可以解释架构、可以写进简历的垂直领域智能体 MVP。
+
+当前版本已经形成从岗位 JD 到简历匹配、项目经历优化、面试准备和投递记录的最小闭环。后续 v0.2 可以继续围绕 ohmo / IM 接入、RAG 简历知识库、多 Agent 协作、benchmark 评估和安全边界增强项目复杂度。
+
+### 简历 Bullet
+
+中文：
+
+基于 OpenHarness 二次开发 CareerPilot Agent 求职流程智能体，扩展 JD 解析、简历匹配、项目经历提炼、面试准备计划和投递状态追踪等自定义工具；通过 Markdown Skill 固化求职工作流，结合本地 JSON Memory、结构化输出、可解释评分逻辑和 pytest 测试，形成从岗位分析到简历优化和面试准备的端到端 CLI Demo。
+
+英文：
+
+Built CareerPilot Agent, a personalized job-search agent on top of OpenHarness, by extending custom tools, domain skills, local memory, structured outputs, and an end-to-end CLI workflow. Implemented JD parsing, resume-job matching, project story extraction, interview preparation planning, and application tracking with explainable scoring and test coverage.
+
+### 下一阶段计划
+
+- Day16 起进入 v0.2 增强阶段。
+- 优先考虑 ohmo / Telegram / Slack / Feishu 等 IM 渠道接入。
+- 增加 RAG 简历知识库和岗位-经历证据矩阵。
+- 拆分多 Agent / 多角色求职工作流。
+- 增加 benchmark 和 schema validation 评估报告。
+- 增加安全策略和 human-in-the-loop 边界。
