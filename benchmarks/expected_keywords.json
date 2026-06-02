@@ -1,0 +1,53 @@
+{
+  "backend_api_engineer.md": {
+    "core_keywords": [
+      "Python",
+      "FastAPI",
+      "PostgreSQL",
+      "REST API",
+      "Docker",
+      "CI/CD",
+      "authentication"
+    ],
+    "nice_to_have_keywords": [
+      "observability",
+      "cloud deployment",
+      "reliability"
+    ]
+  },
+  "ai_agent_engineer.md": {
+    "core_keywords": [
+      "Python",
+      "LLM",
+      "tool use",
+      "memory",
+      "structured outputs",
+      "Pydantic",
+      "RAG",
+      "evaluation",
+      "tracing"
+    ],
+    "nice_to_have_keywords": [
+      "permissions",
+      "workflow orchestration",
+      "hallucination"
+    ]
+  },
+  "ml_platform_engineer.md": {
+    "core_keywords": [
+      "Python",
+      "ML pipelines",
+      "model deployment",
+      "Docker",
+      "Kubernetes",
+      "CI/CD",
+      "monitoring",
+      "model evaluation"
+    ],
+    "nice_to_have_keywords": [
+      "cloud",
+      "data pipelines",
+      "production reliability"
+    ]
+  }
+}

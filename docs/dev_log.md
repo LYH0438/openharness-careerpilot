@@ -1649,3 +1649,88 @@ Built CareerPilot Agent, a personalized job-search agent on top of OpenHarness, 
 - 拆分多 Agent / 多角色求职工作流。
 - 增加 benchmark 和 schema validation 评估报告。
 - 增加安全策略和 human-in-the-loop 边界。
+
+## 2026-06-02 v0.2 Day 16 - Benchmark Evaluation
+
+### 今日目标
+启动 CareerPilot v0.2 的第一阶段，新增轻量级 Benchmark / Evaluation 层，让项目从“能生成 demo report”进一步升级为“可以被评估和回归检查的 Agent workflow”。
+
+### 完成内容
+- 新增 `benchmarks/` 目录，用于保存评估样例和评估结果。
+- 新增 3 个岗位 JD benchmark 样例：
+  - `backend_api_engineer.md`
+  - `ai_agent_engineer.md`
+  - `ml_platform_engineer.md`
+- 新增 2 个简历 benchmark 样例：
+  - `backend_resume.md`
+  - `ai_agent_resume.md`
+- 新增 `benchmarks/expected_keywords.json`，为每个 JD 样例定义预期关键词。
+- 新增 `careerpilot/evaluation/` 模块：
+  - `metrics.py`
+  - `eval_runner.py`
+- 在 `metrics.py` 中实现确定性评估指标：
+  - `keyword_recall`
+  - `schema_validity`
+  - `report_completeness`
+  - `average`
+  - `score_to_label`
+- 在 `eval_runner.py` 中实现 JD benchmark runner，支持读取 benchmark JD、调用现有 `JD Analyzer`、计算指标并生成 Markdown 报告。
+- 生成 `benchmarks/eval_report.md` 作为当前 v0.2 的第一版评估报告。
+- 新增 evaluation metrics 单元测试，覆盖关键词召回、schema 完整性、分数标签和平均分计算。
+
+### 当前 Benchmark 基线
+本次初始 benchmark 结果如下：
+
+    Cases: 3
+    Average keyword recall: 0.4045
+    Average schema validity: 0.875
+    Average report completeness: 0.875
+    Average overall score: 0.7182
+
+分 case 结果：
+
+    ai_agent_engineer.md       overall: 0.6667, label: fair
+    backend_api_engineer.md    overall: 0.7833, label: good
+    ml_platform_engineer.md    overall: 0.7045, label: fair
+
+### 遇到的问题
+- `eval_runner.py` 最初假设 `analyze_jd()` 支持 `job_description=...`、`target_role=...`、`language=...` 形式的关键字参数。
+- 实际检查后发现当前 `JD Analyzer` 的真实函数签名是：
+
+    analyze_jd(payload: JDAnalysisInput | dict) -> JDAnalysisOutput
+
+### 解决方式
+- 没有修改现有 `careerpilot/tools/jd_analyzer.py`。
+- 只在 `careerpilot/evaluation/eval_runner.py` 中增加适配层，将 benchmark 输入包装成 payload dict：
+
+    payload = {
+        "job_description": jd_text,
+        "target_role": target_role,
+        "language": "en",
+    }
+
+- 这样 evaluation 模块可以复用现有工具实现，同时避免破坏 v0.1 已有功能。
+
+### 技术决策
+- v0.2 的第一步优先做 Benchmark / Evaluation，而不是直接做更多生成能力。
+- 当前评估采用确定性指标，而不是 LLM-as-judge，原因是：
+  - 本地可运行。
+  - 结果稳定。
+  - 便于回归测试。
+  - 不依赖外部模型调用。
+- `keyword_recall` 用作第一版质量信号，用于衡量 JD Analyzer 对预期岗位关键词的覆盖程度。
+- `schema_validity` 和 `report_completeness` 暂时都基于字段完整性，但保留为两个独立指标，方便后续扩展更严格的类型校验和内容质量检查。
+- 当前分数不作为最终质量目标，而是作为 v0.2 的 baseline。后续优化 JD Analyzer、expected keywords 或 resume matching evaluation 时可以对比这个基线。
+
+### 当前评价
+- Benchmark runner 已经可以稳定运行。
+- 评估报告可以自动生成。
+- 项目已经具备第一版“可评估性”。
+- 当前 `keyword_recall` 偏低，说明 JD Analyzer 对 AI Agent 和 ML Platform 这类岗位的关键词覆盖还有优化空间。
+- `schema_validity` 为 0.875，说明至少有一个 required field 当前为空或缺失，后续可以进一步检查字段输出质量。
+
+### 下一步计划
+- 跑完整 `tests/careerpilot` 测试，确认新增 evaluation 模块没有破坏 v0.1 功能。
+- 将 Benchmark / Evaluation 作为 Day 16 milestone 提交。
+- 后续可以在 README 中增加 Evaluation 部分。
+- v0.2 下一阶段进入 Evidence Matrix / Lightweight RAG，让简历建议能够关联到明确证据来源。
