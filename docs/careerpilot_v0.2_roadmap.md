@@ -100,6 +100,9 @@ Reason for deferral:
 
 ## M1. Benchmark / Evaluation
 
+Status: completed on 2026-06-02 as the first v0.2 milestone.
+
+
 ### Goal
 
 Make CareerPilot measurable instead of only demonstrable.
@@ -162,6 +165,19 @@ benchmarks/eval_report.md
 ```
 
 ---
+
+
+### M1 completion note
+
+The first v0.2 milestone introduced a deterministic benchmark evaluation layer:
+
+- Added benchmark JD and resume samples.
+- Added expected keyword annotations.
+- Implemented evaluation metrics.
+- Implemented `python -m careerpilot.evaluation.eval_runner`.
+- Generated `benchmarks/eval_report.md`.
+- Added tests for evaluation metrics.
+- Current baseline overall score: 0.8015.
 
 ## M2. Evidence Matrix / Lightweight RAG
 
@@ -497,10 +513,10 @@ v0.2-careerpilot-agent-system
 ## 7. v0.2 Final Acceptance Checklist
 
 ```text
-- [ ] Benchmark dataset exists.
-- [ ] Evaluation runner works locally.
-- [ ] eval_report.md is generated.
-- [ ] Evaluation metrics have tests.
+- [x] Benchmark dataset exists.
+- [x] Evaluation runner works locally.
+- [x] eval_report.md is generated.
+- [x] Evaluation metrics have tests.
 - [ ] Knowledge documents exist.
 - [ ] Evidence matrix generator works.
 - [ ] evidence_matrix.md is generated.

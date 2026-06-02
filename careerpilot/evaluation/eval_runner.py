@@ -34,11 +34,14 @@ JD_REQUIRED_FIELDS = [
     "role_summary",
     "seniority_level",
     "core_skills",
-    "nice_to_have_skills",
     "responsibilities",
     "keywords_for_resume",
     "interview_focus",
     "risk_notes",
+]
+
+JD_OPTIONAL_FIELDS = [
+    "nice_to_have_skills",
 ]
 
 

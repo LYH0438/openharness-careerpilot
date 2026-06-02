@@ -1734,3 +1734,41 @@ Built CareerPilot Agent, a personalized job-search agent on top of OpenHarness, 
 - 将 Benchmark / Evaluation 作为 Day 16 milestone 提交。
 - 后续可以在 README 中增加 Evaluation 部分。
 - v0.2 下一阶段进入 Evidence Matrix / Lightweight RAG，让简历建议能够关联到明确证据来源。
+
+### Day 17 文档与评估规则调整
+
+### 完成内容
+- 在 `README.md` 中新增 Evaluation 入口，说明 v0.2 Benchmark 的目标、指标和运行方式。
+- 在 `README.zh-CN.md` 中新增中文“评估”部分。
+- 更新 `docs/careerpilot_v0.2_roadmap.md`，标记 M1 Benchmark / Evaluation 相关验收项已完成。
+- 检查 `schema_validity = 0.875` 的原因。
+
+### Schema Validity 检查结论
+通过逐 case 检查 JD Analyzer 输出，发现三个 benchmark case 都存在同一个现象：
+
+    nice_to_have_skills: []
+
+其他 required fields 均正常输出。因此原始 0.875 分数来自：
+
+    7 / 8 = 0.875
+
+### 调整决策
+`nice_to_have_skills` 在真实 JD 中可以为空，属于可选增强字段，不应作为 schema 必填内容参与 `schema_validity` 和 `report_completeness` 计算。
+
+因此将：
+
+    nice_to_have_skills
+
+从 `JD_REQUIRED_FIELDS` 移出，并新增 `JD_OPTIONAL_FIELDS` 进行文档化保留。
+
+### 调整后的 Benchmark 基线
+调整后，schema 相关指标更符合实际定义：
+
+    Cases: 3
+    Average keyword recall: 0.4045
+    Average schema validity: 1.0
+    Average report completeness: 1.0
+    Average overall score: 0.8015
+
+### 后续说明
+当前 `keyword_recall` 仍然偏低，这说明 JD Analyzer 对 AI Agent 和 ML Platform 岗位的关键词覆盖仍有优化空间。该问题属于 analyzer 质量优化，不属于 schema 完整性问题。

@@ -330,6 +330,41 @@ Current completed milestones:
 
 ---
 
+## Evaluation
+
+CareerPilot v0.2 adds a lightweight benchmark evaluation layer to make JD analysis outputs measurable and regression-testable.
+
+The current benchmark evaluates JD analysis quality across three role-specific samples:
+
+- Backend API Engineer
+- AI Agent Engineer
+- ML Platform Engineer
+
+Evaluation metrics:
+
+- `keyword_recall`: checks whether extracted JD keywords cover expected benchmark keywords.
+- `schema_validity`: checks whether required JD analysis fields are present.
+- `report_completeness`: checks whether the generated report contains the expected sections.
+- `overall_score`: averages the deterministic metrics into a single quality signal.
+
+Run the benchmark locally:
+
+    python -m careerpilot.evaluation.eval_runner
+
+Current baseline:
+
+    Cases: 3
+    Average keyword recall: 0.4045
+    Average schema validity: 1.0
+    Average report completeness: 1.0
+    Average overall score: 0.8015
+
+Generated report:
+
+    benchmarks/eval_report.md
+
+This benchmark is intended for regression tracking and engineering visibility, not as an absolute measure of model quality.
+
 ## Roadmap
 
 ### v0.1 MVP

@@ -266,6 +266,41 @@ examples/careerpilot/
 
 ---
 
+## 评估
+
+CareerPilot v0.2 新增了轻量级 Benchmark / Evaluation 层，用于让 JD 分析输出具备可度量性和回归检查能力。
+
+当前 benchmark 覆盖 3 类岗位样例：
+
+- Backend API Engineer
+- AI Agent Engineer
+- ML Platform Engineer
+
+评估指标：
+
+- `keyword_recall`：检查 JD Analyzer 提取出的关键词是否覆盖预期岗位关键词。
+- `schema_validity`：检查 JD 分析结果是否包含必需字段。
+- `report_completeness`：检查生成报告是否包含预期内容。
+- `overall_score`：对确定性指标取平均，形成整体质量信号。
+
+本地运行 benchmark：
+
+    python -m careerpilot.evaluation.eval_runner
+
+当前 baseline：
+
+    Cases: 3
+    Average keyword recall: 0.4045
+    Average schema validity: 1.0
+    Average report completeness: 1.0
+    Average overall score: 0.8015
+
+生成报告：
+
+    benchmarks/eval_report.md
+
+该 benchmark 主要用于回归追踪和工程可观测性，不用于表示模型能力的绝对质量。
+
 ## 测试
 
 运行 CareerPilot 专属测试：
